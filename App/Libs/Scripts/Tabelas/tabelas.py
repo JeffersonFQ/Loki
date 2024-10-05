@@ -72,8 +72,11 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
 
         page.add(search_container)
 
+        # Lista de arquivos a serem ignorados
+        arquivos_ignorados = ['desktop.ini','__pycache__']
+
         for item in os.listdir(caminho):
-            if filtro.lower() in item.lower():
+            if filtro.lower() in item.lower() and item not in arquivos_ignorados:
                 caminho_completo = os.path.join(caminho, item)
                 item_tooltip = item
 
@@ -85,10 +88,10 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
                                       ft.Text(item_nome, size=16, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER, tooltip=item_tooltip)],
                             alignment=ft.MainAxisAlignment.CENTER,
                             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                            spacing=5
+                            spacing=0
                         ),
                         on_click=lambda e, path=caminho_completo: listar_pastas_e_arquivos(path, page, nivel + 1, filtro),
-                        padding=ft.padding.all(10),
+                        padding=ft.padding.all(2),
                         bgcolor='#081c15',
                         border_radius=ft.border_radius.all(10),
                         width=150,
@@ -121,9 +124,9 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
                                       ft.Text(item_nome, size=12, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER, tooltip=item_tooltip)],
                             alignment=ft.MainAxisAlignment.CENTER,
                             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                            spacing=5
+                            spacing=0
                         ),
-                        padding=ft.padding.all(10),
+                        padding=ft.padding.all(2),
                         bgcolor='#081c15',
                         border_radius=ft.border_radius.all(10),
                         width=150,
@@ -137,10 +140,10 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
                     controls=folder_rows,
                     alignment=ft.MainAxisAlignment.CENTER,
                     wrap=True,
-                    scroll=ft.ScrollMode.AUTO
+                    scroll=ft.ScrollMode.HIDDEN
                 ),
                 height=530,
-                bgcolor='#081c15'
+                bgcolor='Transparent'
             )
             page.add(scroll_container)
 
@@ -151,6 +154,7 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
         mostrar_erro(page, "Pasta não encontrada.")
     except Exception as e:
         mostrar_erro(page, f"Ocorreu um erro: {str(e)}")
+
 
 def abrir_arquivo_sql(caminho, page: ft.Page):
     try:
@@ -225,39 +229,3 @@ def tabelas_page(page: ft.Page):
 
     path_to_list = "./Libs/Scripts/Tabelas/Tables/"
     listar_pastas_e_arquivos(path_to_list, page)
-
-def go_to_folder1(page: ft.Page):
-    from Libs.Scripts.Tabelas.tabelas import tabelas_page
-    page.clean()
-    tabelas_page(page)
-    page.update()
-
-def go_to_folder2(page: ft.Page):
-    from Libs.Scripts.Notas.notas import notas_page
-    page.clean()
-    notas_page(page)
-    page.update()
-
-def go_to_folder3(page: ft.Page):
-    from Libs.Scripts.Virada.virada import virada_page
-    page.clean()
-    virada_page(page)
-    page.update()
-
-def go_to_folder4(page: ft.Page):
-    from Libs.Scripts.Migração.migracao import migracao_page
-    page.clean()
-    migracao_page(page)
-    page.update()
-
-def go_to_folder5(page: ft.Page):
-    from Libs.Scripts.Ferramentas.ferramentas import ferramentas_page
-    page.clean()
-    ferramentas_page(page)
-    page.update()
-
-def go_to_folder6(page: ft.Page):
-    from Libs.Scripts.Outros.outros import outros_page
-    page.clean()
-    outros_page(page)
-    page.update()

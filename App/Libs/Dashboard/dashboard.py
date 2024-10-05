@@ -47,7 +47,7 @@ def dashboard_page(page: ft.Page):
 
     development_message = ft.Text(
         "Em Desenvolvimento", 
-        size=30,  # Tamanho da fonte
+        size=50,  # Tamanho da fonte
         weight=ft.FontWeight.BOLD,  # Texto em negrito
         color=ft.colors.WHITE,  # Cor branca
         text_align=ft.TextAlign.CENTER,  # Alinhamento central

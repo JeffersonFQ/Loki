@@ -1,10 +1,11 @@
-FRAMEKORKS
+# Bibliotecas utilizadas
+
+FRAMEKORKS:
     - FLET
     - ELEVATE
     - PYREBASE4
     - PYPERCLIP
-    - 
+
+## Requisitos
 
 REQUISITOS
-    - 
-    - 
