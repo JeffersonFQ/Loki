@@ -1,4 +1,5 @@
 import flet as ft
+from pathlib import Path
 from Libs.Public.ui import configure_main_window, go_to_login
 from Libs.Public.utils import create_drag_area, create_drawer
 
@@ -40,16 +41,14 @@ def folder_redirect(page: ft.Page, target_page_function):
 
 def scripts_page(page: ft.Page):
     configure_main_window(page)
-    
-    # Definir o tema escuro para a página
+
+    # Configurações da página
     page.bgcolor = '#081c15'
     page.title = "Menu Scripts"
     page.window.title_bar_hidden = True
     page.window.maximizable = False
     page.window.resizable = False
     page.theme_mode = 'Dark'
-    
-    # Remover contorno da janela
     page.window.border_color = ft.colors.TRANSPARENT
 
     # Criação do drawer e área de drag
@@ -60,87 +59,106 @@ def scripts_page(page: ft.Page):
 
     # Lista de pastas com funções de redirecionamento
     folders = [
-        ("Tabelas", go_to_folder1),  # Função correspondente
+        ("Tabelas", go_to_folder1),
         ("Notas", go_to_folder2),
         ("Virada", go_to_folder3),
         ("Migração", go_to_folder4),
         ("Ferramentas", go_to_folder5),
-        ("Outros", go_to_folder6),
+        ("Outros", go_to_folder6)
     ]
 
-    # Função de filtragem
-    def filter_folders(e):
-        search_text = e.control.value.lower()
-        filtered_folders = [folder for folder in folders if search_text in folder[0].lower()]
-        update_folder_buttons(filtered_folders)
+    # Função de busca de arquivos SQL
+    def search_sql_files(search_text):
+        caminho_pasta = Path("C:/Users/jeffe/Documents/Mega Pessoal/SCRIPT")
+        return [str(file) for file in caminho_pasta.rglob('*.sql') if search_text in file.name.lower()]
 
-    # Função para atualizar os botões com base nas pastas filtradas
-    def update_folder_buttons(filtered_folders):
+    # Atualiza os botões de arquivos SQL e pastas encontrados
+    def update_results(search_text):
+        sql_files = search_sql_files(search_text) if search_text else []  # Atualiza a busca de arquivos SQL
+        filtered_folders = [folder for folder in folders if search_text in folder[0].lower()]
+
         folder_rows = []
-        row = []
-        for i, (folder_name, target_page_function) in enumerate(filtered_folders):
+        sql_file_rows = []
+        
+        # Organiza pastas em linhas
+        for folder_name, target_page_function in filtered_folders:
             folder_button = ft.Container(
                 content=ft.Column(
                     controls=[
-                        ft.Icon(ft.icons.FOLDER, size=200, color=ft.colors.YELLOW),  # Ícone da pasta
-                        ft.Text(folder_name, size=20, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER)
+                        ft.Icon(ft.icons.FOLDER, size=100, color=ft.colors.YELLOW),
+                        ft.Text(folder_name, size=16, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER)
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     spacing=5
                 ),
-                on_click=lambda e, func=target_page_function: folder_redirect(page, func),  # Função de redirecionamento
+                on_click=lambda e, func=target_page_function: folder_redirect(page, func),
                 padding=ft.padding.all(10),
                 bgcolor='#081c15',
-                border_radius=ft.border_radius.all(10),  # Bordas arredondadas para os ícones
-                width=250,
-                height=250
+                border_radius=ft.border_radius.all(10),
+                width=150,
+                height=150
             )
-            row.append(folder_button)
+            folder_rows.append(folder_button)
 
-            # Agrupar 3 botões por linha
-            if (i + 1) % 3 == 0 or i == len(filtered_folders) - 1:
-                folder_rows.append(ft.Row(controls=row, alignment=ft.MainAxisAlignment.CENTER))
-                row = []
+        # Organiza arquivos SQL em linhas
+        for file_path in sql_files:
+            sql_file_button = ft.Container(
+                content=ft.Column(
+                    controls=[
+                        ft.Icon(ft.icons.DOCUMENT_SCANNER, size=100, color=ft.colors.GREEN),
+                        ft.Text(Path(file_path).name, size=16, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER)
+                    ],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    spacing=5
+                ),
+                padding=ft.padding.all(10),
+                bgcolor='#081c15',
+                border_radius=ft.border_radius.all(10),
+                width=150,
+                height=200
+            )
+            sql_file_rows.append(sql_file_button)
 
-        # Atualizar o conteúdo da página
+        # Limpa e atualiza a página com os novos botões
         page.controls.clear()
-        search_container = ft.Container(
-            content=ft.TextField(
-                hint_text="Search folders...",
-                on_change=filter_folders,
-                expand=True,
-            ),
-            padding=ft.padding.all(10),
-        )
-        page.add(drag_area)  # Adicionando a área de drag acima da barra de pesquisa
+        page.add(drag_area)
         page.add(search_container)
-        main_container = ft.Container(
-            content=ft.Column(
-                controls=folder_rows,  # Adicionar rows de botões
-                expand=True,
-                alignment=ft.MainAxisAlignment.CENTER,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER
-            ),
-            padding=ft.padding.all(0),
-            margin=ft.Margin(left=0, right=0, top=0, bottom=0),
-            bgcolor=ft.colors.TRANSPARENT  # Fundo transparente para o container principal
-        )
-        page.add(main_container)
-        page.update()
 
-    # Adicionar barra de pesquisa e inicializar os botões de pastas
-    page.add(drag_area)  # Adicionando a área de drag no topo
+        # Adiciona pastas em uma grade
+        if folder_rows:
+            page.add(ft.Row(controls=folder_rows, alignment=ft.MainAxisAlignment.CENTER, wrap=True))
+
+        # Adiciona arquivos SQL em uma grade
+        if sql_file_rows:
+            page.add(ft.Row(controls=sql_file_rows, alignment=ft.MainAxisAlignment.CENTER, wrap=True))
+
+        page.update()  # Atualiza a página, mas mantém o foco
+
+    # Campo de busca
+    def search_changed(e):
+        search_text = e.control.value.lower()
+        update_results(search_text)
+
     search_container = ft.Container(
         content=ft.TextField(
-            hint_text="Pesquisar Scripts...",
-            on_change=filter_folders,
+            hint_text="Pesquisar Pastas e Arquivos SQL...",
+            on_change=search_changed,
             expand=True,
+            bgcolor="#000000",  # Fundo preto
+            color=ft.colors.WHITE,  # Texto branco
+            border_color=ft.colors.WHITE,  # Bordas brancas
+            text_size=20,  # Aumenta o tamanho do texto
+            autofocus=True  # Mantém o foco no campo de busca
         ),
         padding=ft.padding.all(10),
     )
+
+    # Inicializa a página com os controles
+    page.add(drag_area)
     page.add(search_container)
-    update_folder_buttons(folders)
+    update_results('')  # Atualiza inicialmente para mostrar somente pastas
 
 # Placeholder para as funções de redirecionamento
 def go_to_folder1(page: ft.Page):
@@ -148,26 +166,31 @@ def go_to_folder1(page: ft.Page):
     page.clean()
     tabelas_page(page)
     page.update()
+
 def go_to_folder2(page: ft.Page):
     from Libs.Scripts.Notas.notas import notas_page
     page.clean()
     notas_page(page)
     page.update()
+
 def go_to_folder3(page: ft.Page):
     from Libs.Scripts.Virada.virada import virada_page
     page.clean()
     virada_page(page)
     page.update()
+
 def go_to_folder4(page: ft.Page):
     from Libs.Scripts.Migração.migracao import migracao_page
     page.clean()
     migracao_page(page)
     page.update()
+
 def go_to_folder5(page: ft.Page):
     from Libs.Scripts.Ferramentas.ferramentas import ferramentas_page
     page.clean()
     ferramentas_page(page)
     page.update()
+
 def go_to_folder6(page: ft.Page):
     from Libs.Scripts.Outros.outros import outros_page
     page.clean()

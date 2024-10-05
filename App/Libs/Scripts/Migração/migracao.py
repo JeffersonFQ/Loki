@@ -37,14 +37,21 @@ def migracao_page(page: ft.Page):
         ("Upload", go_to_new_file)
     ]
 
-    def update_folder_buttons(filtered_folders):
+    # Função de busca de arquivos .sql
+    def search_sql_files(search_text):
+        return [folder for folder in folders if search_text in folder[0].lower()]
+
+    # Atualiza os botões de pastas encontrados
+    def update_folder_buttons(search_text=''):
+        filtered_folders = search_sql_files(search_text)
         folder_rows = []
         row = []
+
         for i, (folder_name, target_page_function) in enumerate(filtered_folders):
             folder_button = ft.Container(
                 content=ft.Column(
                     controls=[
-                        ft.Icon(ft.icons.FOLDER if folder_name == "Download" else ft.icons.UPLOAD_FILE, size=200, color=ft.colors.YELLOW),
+                        ft.Icon(ft.icons.FOLDER if folder_name == "Download" else ft.icons.UPLOAD_FILE, size=100, color=ft.colors.YELLOW),
                         ft.Text(folder_name, size=20, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER)
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,
@@ -55,16 +62,14 @@ def migracao_page(page: ft.Page):
                 padding=ft.padding.all(10),
                 bgcolor='#081c15',
                 border_radius=ft.border_radius.all(10),
-                width=250,
-                height=250
+                width=150,
+                height=150
             )
             row.append(folder_button)
 
             if (i + 1) % 2 == 0 or i == len(filtered_folders) - 1:
-                folder_rows.append(ft.Row(controls=row, alignment=ft.MainAxisAlignment.CENTER))
+                folder_rows.append(ft.Row(controls=row, alignment=ft.MainAxisAlignment.CENTER, wrap=True))
                 row = []
-
-        page.controls.clear()
 
         back_button = ft.ElevatedButton(
             text="Voltar",
@@ -79,7 +84,8 @@ def migracao_page(page: ft.Page):
             page.clean()
             scripts_page(page)
             page.update()
-        
+
+        page.controls.clear()
         page.add(drag_area)
         page.add(back_button)
 
@@ -95,8 +101,28 @@ def migracao_page(page: ft.Page):
         page.add(main_container)
         page.update()
 
+    # Campo de busca
+    def search_changed(e):
+        search_text = e.control.value.lower()
+        update_folder_buttons(search_text)
+
+    search_container = ft.Container(
+        content=ft.TextField(
+            hint_text="Pesquisar Pastas...",
+            on_change=search_changed,
+            expand=True,
+            bgcolor="#000000",
+            color=ft.colors.WHITE,
+            border_color=ft.colors.WHITE,
+            text_size=20,
+            autofocus=True
+        ),
+        padding=ft.padding.all(10),
+    )
+
     page.add(drag_area)
-    update_folder_buttons(folders)
+    page.add(search_container)
+    update_folder_buttons()  # Atualiza inicialmente para mostrar as pastas
 
 def go_to_new_file(page: ft.Page):
     page.clean()
@@ -110,14 +136,11 @@ def go_to_downmigracao(page: ft.Page):
 
 def downmigracao_page(page: ft.Page):
     page.clean()
-    
-    # Pasta onde os arquivos .sql estão localizados
-    sql_directory = "./Libs/Scripts/Migração"  # Certifique-se de que esse diretório contém arquivos .sql
 
-    # Lista os arquivos .sql no diretório especificado
+    sql_directory = "./Libs/Scripts/Migração"
+
     def list_sql_files(directory):
         try:
-            # Depuração: Exibir arquivos no diretório
             print(f"Listando arquivos no diretório: {directory}")
             files = os.listdir(directory)
             print(f"Arquivos encontrados: {files}")
@@ -126,16 +149,15 @@ def downmigracao_page(page: ft.Page):
             print(f"Erro ao listar arquivos: {e}")
             return []
 
-    # Atualiza os botões na página com os arquivos .sql
-    def update_folder_buttons(sql_files):
-        folder_rows = []
+    def update_sql_file_buttons(sql_files):
+        file_rows = []
         row = []
         for i, filename in enumerate(sql_files):
-            folder_button = ft.Container(
+            file_button = ft.Container(
                 content=ft.Column(
                     controls=[
-                        ft.Icon(ft.icons.DESCRIPTION, size=200, color=ft.colors.YELLOW),  # Usando ícone de arquivo
-                        ft.Text(filename, size=20, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER)
+                        ft.Icon(ft.icons.DESCRIPTION, size=100, color=ft.colors.YELLOW),
+                        ft.Text(filename, size=16, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER)
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -145,13 +167,13 @@ def downmigracao_page(page: ft.Page):
                 padding=ft.padding.all(10),
                 bgcolor='#081c15',
                 border_radius=ft.border_radius.all(10),
-                width=250,
-                height=250
+                width=150,
+                height=200
             )
-            row.append(folder_button)
+            row.append(file_button)
 
             if (i + 1) % 2 == 0 or i == len(sql_files) - 1:
-                folder_rows.append(ft.Row(controls=row, alignment=ft.MainAxisAlignment.CENTER))
+                file_rows.append(ft.Row(controls=row, alignment=ft.MainAxisAlignment.CENTER, wrap=True))
                 row = []
 
         back_button = ft.ElevatedButton(
@@ -167,7 +189,7 @@ def downmigracao_page(page: ft.Page):
 
         main_container = ft.Container(
             content=ft.Column(
-                controls=folder_rows,
+                controls=file_rows,
                 expand=True,
                 alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER
@@ -177,9 +199,8 @@ def downmigracao_page(page: ft.Page):
         page.add(main_container)
         page.update()
 
-    # Cria botões para os arquivos .sql
     sql_files = list_sql_files(sql_directory)
-    update_folder_buttons(sql_files)
+    update_sql_file_buttons(sql_files)
 
 def open_sql_file(page: ft.Page, filename: str):
     page.clean()
