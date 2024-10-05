@@ -1,7 +1,6 @@
 import subprocess
 import os
 import flet as ft
-from datetime import datetime
 from Libs.Data.firebase_config import db
 
 def show_snackbar(page, message, is_error=False, color='#008000'):
@@ -42,19 +41,32 @@ def create_drag_area(page: ft.Page, drawer: ft.NavigationDrawer):
     return drag_area
 
 def handle_change(e, page: ft.Page):
+    from Libs.Public.menu import menu_page
+    from Libs.Scripts.scripts import scripts_page
+    from Libs.Dashboard.dashboard import dashboard_page
+    from Libs.Wiki.wiki import wiki_page
+    from Libs.Technical.technical import technical_page
+    from Libs.Movdesk.movdesk import movdesk_page
+    from Config.settings import settings_page
+
     selected_index = e.control.selected_index
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
+
     destinations = [
-        "Clientes", "Scripts SQL", "Dashboard", 
-        "WikiSN", "Menu Técnico", "API Movdesk", 
-        "Configurações", "Sair"
+        menu_page,
+        scripts_page,
+        dashboard_page,
+        wiki_page,
+        technical_page,
+        movdesk_page,
+        settings_page
     ]
-    
+
     if selected_index < len(destinations):
-        show_snackbar(page, f"Navegando para {destinations[selected_index]} - {current_time}")
-    if selected_index == 7:  
-        show_snackbar(page, f"Sair - {current_time}")
+        page.clean()  # Limpa a página
+        destinations[selected_index](page)  # Chama a função correspondente
+        show_snackbar(page, f"Navegando para {destinations[selected_index].__name__}")
+    elif selected_index == 7:  # Para o item "Sair"
+        show_snackbar(page, "Saindo...")
         page.window.close()
 
 def create_drawer(page: ft.Page):
@@ -110,7 +122,7 @@ def create_client_button(client_id, client_name, page):
         height=60,
         border_radius=15,
         padding=10,
-        bgcolor="#CC8105",  # Use "bgcolor" para definir a cor de fundo
+        bgcolor="#CC8105",
         border=ft.Border(
             left=ft.BorderSide(2, "black"),
             top=ft.BorderSide(2, "black"),
@@ -215,5 +227,4 @@ def close_modal(modal, page):
     page.update()
 
 def log_action(action: str):
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    print(f"{current_time} - {action}")
+    print(f"{action}")

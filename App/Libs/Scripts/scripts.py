@@ -106,7 +106,7 @@ def scripts_page(page: ft.Page):
             sql_file_button = ft.Container(
                 content=ft.Column(
                     controls=[
-                        ft.Icon(ft.icons.DOCUMENT_SCANNER, size=100, color=ft.colors.GREEN),
+                        ft.Icon(ft.icons.DESCRIPTION, size=100, color=ft.colors.GREEN),
                         ft.Text(Path(file_path).name, size=16, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER)
                     ],
                     alignment=ft.MainAxisAlignment.CENTER,

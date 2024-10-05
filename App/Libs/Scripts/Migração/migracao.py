@@ -122,11 +122,11 @@ def migracao_page(page: ft.Page):
 
     page.add(drag_area)
     page.add(search_container)
-    update_folder_buttons()  # Atualiza inicialmente para mostrar as pastas
+    update_folder_buttons()
 
 def go_to_new_file(page: ft.Page):
     page.clean()
-    page.add(ft.Text("Nova página de arquivo"))  # Exemplo simples
+    page.add(ft.Text("Nova página de arquivo"))
     page.update()
 
 def go_to_downmigracao(page: ft.Page):
@@ -137,13 +137,16 @@ def go_to_downmigracao(page: ft.Page):
 def downmigracao_page(page: ft.Page):
     page.clean()
 
+    drawer = create_drawer(page)
+    drawer.on_change = lambda e: handle_change(e, page)
+    drag_area = create_drag_area(page, drawer)
+
+
     sql_directory = "./Libs/Scripts/Migração"
 
     def list_sql_files(directory):
         try:
-            print(f"Listando arquivos no diretório: {directory}")
             files = os.listdir(directory)
-            print(f"Arquivos encontrados: {files}")
             return [f for f in files if f.endswith('.sql')]
         except Exception as e:
             print(f"Erro ao listar arquivos: {e}")
@@ -185,6 +188,7 @@ def downmigracao_page(page: ft.Page):
         )
 
         page.controls.clear()
+        page.add(drag_area)        
         page.add(back_button)
 
         main_container = ft.Container(
@@ -196,6 +200,7 @@ def downmigracao_page(page: ft.Page):
             ),
             bgcolor=ft.colors.TRANSPARENT
         )
+
         page.add(main_container)
         page.update()
 
@@ -204,5 +209,5 @@ def downmigracao_page(page: ft.Page):
 
 def open_sql_file(page: ft.Page, filename: str):
     page.clean()
-    page.add(ft.Text(f"Abrindo arquivo: {filename}"))  # Exemplo de ação ao abrir o arquivo
+    page.add(ft.Text(f"Abrindo arquivo: {filename}"))
     page.update()
