@@ -6,7 +6,7 @@ def configure_main_window(page: ft.Page):
     page.title = "Aplicativo"
     page.window.max_height = 700
     page.window.max_width = 1150
-    #page.window.center()
+    page.window.center()
     page.window.frameless = True
     page.window.title_bar_hidden = True
     page.window.width = 1150
