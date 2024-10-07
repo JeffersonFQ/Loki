@@ -2,23 +2,8 @@ import os
 import subprocess
 import gdown
 import flet as ft
-
-def create_drag_area(page: ft.Page, close_app, go_back):
-    return ft.WindowDragArea(
-        ft.Container(
-            content=ft.Row(
-                controls=[
-                    ft.IconButton(ft.icons.ARROW_BACK, on_click=go_back, icon_color=ft.colors.WHITE),
-                    ft.IconButton(ft.icons.CLOSE, on_click=close_app, icon_color=ft.colors.WHITE)
-                ],
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                expand=True
-            ),
-            bgcolor=ft.colors.TRANSPARENT,
-            height=40
-        ),
-        expand=False
-    )
+from Libs.Public.ui import configure_main_window
+from Libs.Public.utils import create_drag_area, create_drawer
 
 def show_snackbar(page: ft.Page, message: str, color: str):
     snackbar = ft.SnackBar(
@@ -27,10 +12,6 @@ def show_snackbar(page: ft.Page, message: str, color: str):
         open=True
     )
     page.snack_bar = snackbar
-    page.update()
-
-def close_dialog(page: ft.Page, dialog: ft.AlertDialog):
-    dialog.open = False
     page.update()
 
 def download_installer(page, file_url, output):
@@ -79,7 +60,7 @@ def install_sql_server(page, version):
                 os.remove(install_command)
 
 def install_ssms(page):
-    file_url = "https://drive.google.com/uc?id=1tB0plPWXRDO-xM6jZxx7tiFjrXQrxL7-"
+    file_url = "https://drive.google.com/uc?id=1dB0plPWXRDO-xM6jZxx7tiFjrXQrxL7-"
     install_command = "SSMS_installer.exe"
 
     if download_installer(page, file_url, install_command):
@@ -146,95 +127,147 @@ def configure_tomcat(page):
     except Exception as e:
         show_snackbar(page, f"Erro ao configurar o Tomcat: {str(e)}", color=ft.colors.RED)
 
+def choose_java_version(page):
+    def on_version_selected(version):
+        install_java(page, version)
+        dialog.open = False
+        page.update()
+
+    dialog = ft.AlertDialog(
+        title=ft.Text("Qual versão do java deseja instala ?"),
+        actions=[
+            ft.TextButton("32 Bits", on_click=lambda e: on_version_selected("32"),style=ft.ButtonStyle(bgcolor="#CC8105")),
+            ft.TextButton("64 Bits", on_click=lambda e: on_version_selected("64"),style=ft.ButtonStyle(bgcolor="#CC8105")),
+            ft.TextButton("Fechar", on_click=lambda e: close_dialog(page, dialog),style=ft.ButtonStyle(bgcolor="#7B0000")),
+        ],
+        bgcolor='#081c15',
+        actions_alignment=ft.MainAxisAlignment.CENTER
+    )
+    
+    page.overlay.append(dialog)
+    dialog.open = True
+    page.update()
+
+def choose_sql_version(page):
+    def on_version_selected(version):
+        install_sql_server(page, version)
+        dialog.open = False
+        page.update()
+
+    dialog = ft.AlertDialog(
+        title=ft.Text("Qual versão do SQL Server deseja instala?"),
+        actions=[
+            ft.TextButton("SQL 2017", on_click=lambda e: on_version_selected("2017"),style=ft.ButtonStyle(bgcolor="#CC8105")),
+            ft.TextButton("SQL 2019", on_click=lambda e: on_version_selected("2019"),style=ft.ButtonStyle(bgcolor="#CC8105")),
+            ft.TextButton("Fechar", on_click=lambda e: close_dialog(page, dialog),style=ft.ButtonStyle(bgcolor="#7B0000")),
+        ],
+        bgcolor='#081c15',
+        actions_alignment=ft.MainAxisAlignment.CENTER
+    )
+    
+    page.overlay.append(dialog)
+    dialog.open = True
+    page.update()
+
+def close_dialog(page: ft.Page, dialog: ft.AlertDialog):
+    dialog.open = False
+    page.update()
+
 def install_page(page: ft.Page):
-    page.clean()
+    configure_main_window(page)
+    page.title = "Menu Instalação"
+    page.window.title_bar_hidden = True
+    page.window.maximizable = False
+    page.window.resizable = False
+    page.theme_mode = 'Dark'
 
-    def close_app(e):
-        page.window.close()
+    drawer = create_drawer(page)
+    drawer.selected_index = 4
 
-    def go_back(e):
-        from Libs import technical_page
-        page.clean()
-        page.update()
-        technical_page(page)
+    drag_area = create_drag_area(page, drawer)
 
-    button_width, button_height = 200, 60
-
-    def choose_java(e):
-        dialog = ft.AlertDialog(
-            title=ft.Text("Escolha a versão do Java"),
-            content=ft.Column([
-                ft.ElevatedButton("Java 32 bits", on_click=lambda e: install_java(page, "32")),
-                ft.ElevatedButton("Java 64 bits", on_click=lambda e: install_java(page, "64")),
-            ]),
-            actions=[ft.TextButton("Fechar", on_click=lambda e: close_dialog(page, dialog))],
-        )
-        page.dialog = dialog
-        dialog.open = True
-        page.update()
-
-    def choose_sql(e):
-        dialog = ft.AlertDialog(
-            title=ft.Text("Escolha a versão do SQL Server"),
-            content=ft.Column([
-                ft.ElevatedButton("SQL Server 2017", on_click=lambda e: install_sql_server(page, "2017")),
-                ft.ElevatedButton("SQL Server 2019", on_click=lambda e: install_sql_server(page, "2019")),
-            ]),
-            actions=[ft.TextButton("Fechar", on_click=lambda e: close_dialog(page, dialog))],
-        )
-        page.dialog = dialog
-        dialog.open = True
-        page.update()
-
-    buttons = [
-        ft.Container(ft.ElevatedButton("Escolher Java", on_click=choose_java), width=button_width, height=button_height),
-        ft.Container(ft.ElevatedButton("Escolher SQL Server", on_click=choose_sql), width=button_width, height=button_height),
-        ft.Container(ft.ElevatedButton("Instalar SSMS", on_click=install_ssms), width=button_width, height=button_height),
-        ft.Container(ft.ElevatedButton("Instalar Unimake", on_click=install_unimake), width=button_width, height=button_height),
-        ft.Container(ft.ElevatedButton("Instalar Tomcat", on_click=install_tomcat), width=button_width, height=button_height),
-        ft.Container(ft.ElevatedButton("Configurar Tomcat", on_click=lambda e: configure_tomcat(page)), width=button_width, height=button_height)
+    icon_size = 200
+    icons_with_labels = [
+        (ft.icons.COFFEE, "Instalar Java", lambda e: choose_java_version(page), ft.colors.RED),
+        (ft.icons.ALL_INBOX, "Instalar SQL Server", lambda e: choose_sql_version(page), ft.colors.BLUE),
+        (ft.icons.MANAGE_SEARCH_OUTLINED, "Instalar SSMS", lambda e: install_ssms(page), ft.colors.PURPLE),
+        (ft.icons.ARTICLE, "Instalar Unimake", lambda e: install_unimake(page), ft.colors.YELLOW),
+        (ft.icons.BROADCAST_ON_HOME, "Instalar Tomcat", lambda e: install_tomcat(page), ft.colors.BROWN),
+        (ft.icons.BROADCAST_ON_HOME, "Configurar Tomcat", lambda e: configure_tomcat(page), ft.colors.CYAN),
     ]
 
-    button_rows = [
-        ft.Row(controls=buttons[:2], alignment=ft.MainAxisAlignment.CENTER, spacing  = 80),
-        ft.Row(controls=buttons[2:4], alignment=ft.MainAxisAlignment.CENTER, spacing  = 80),
-        ft.Row(controls=[buttons[4], buttons[5]], alignment=ft.MainAxisAlignment.CENTER, spacing  = 80)
-    ]
+    rows = []
+    for i in range(0, len(icons_with_labels), 3):
+        columns = []
+        for icon, label, on_click, color in icons_with_labels[i:i + 3]:
+            column = ft.Column(
+                controls=[
+                    ft.IconButton(
+                        icon,
+                        tooltip=label,
+                        on_click=on_click,
+                        icon_size=icon_size,
+                        style=ft.ButtonStyle(
+                            icon_color='#CC8105'
+                        )
+                    ),
+                    ft.Text(label, text_align=ft.TextAlign.CENTER, size=18)
+                ],
+                spacing=0,
+                alignment=ft.MainAxisAlignment.CENTER,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER
+            )
+            columns.append(column)
 
-    button_container = ft.Container(
-        content=ft.Column(
-            controls=button_rows,
-            alignment=ft.MainAxisAlignment.CENTER,
-            spacing=60,
-        ),
-        width=860,
-        height=350,
-        bgcolor=ft.colors.TRANSPARENT,
-        margin=ft.padding.only(top=10, bottom=200)
+        row = ft.Row(
+            spacing=20,
+            controls=columns,
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+        )
+        rows.append(row)
+
+    icons_container = ft.Column(
+        controls=rows,
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    drag_area = create_drag_area(page, close_app, go_back)
+    back_button = ft.TextButton(
+        text="Voltar",
+        on_click=lambda e: go_to_technical_page(page),
+        style=ft.ButtonStyle(
+            bgcolor="#7B0000",
+            color=ft.colors.WHITE,
+            padding=ft.padding.symmetric(horizontal=20, vertical=12)
+        ),
+    )
 
     main_container = ft.Container(
         content=ft.Column(
-            controls=[drag_area, button_container],
-            alignment=ft.MainAxisAlignment.START,
-            spacing=10,
+            controls=[
+                drag_area,
+                ft.Row(
+                    controls=[back_button],
+                    alignment=ft.MainAxisAlignment.START,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                ),
+                ft.Container(content=icons_container, margin=ft.Margin(left=60, top=18, right=60, bottom=0))
+            ],
+            expand=True,
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER
         ),
-        padding=0,
-        margin=0
+        padding=ft.padding.all(0),
+        margin=ft.Margin(left=0, right=0, top=0, bottom=0),
     )
 
     page.add(main_container)
     page.update()
 
-def main(page: ft.Page):
-    page.window.width = 400
-    page.window.height = 600
-    page.window.resizable = False
-    page.bgcolor = ft.colors.BLACK
-    page.update()
-    install_page(page)
 
-if __name__ == "__main__":
-    ft.app(target=main)
+def go_to_technical_page(page):
+    from Libs.Technical.technical import technical_page
+    page.clean()
+    technical_page(page)
+    page.update()
+

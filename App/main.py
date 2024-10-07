@@ -21,6 +21,7 @@ video = ft.Video(
 )
 
 async def main(page: ft.Page):
+    page.window.center()
     configure_main_window(page)
     page.window.width = 1145
     page.add(video)

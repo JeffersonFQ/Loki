@@ -2,6 +2,7 @@ import flet as ft
 from Libs.Public.ui import configure_main_window, go_to_login
 from Libs.Public.utils import create_drag_area, create_drawer
 
+
 def handle_change(e, page: ft.Page):
     from Libs.Public.menu import menu_page
     from Libs.Scripts.scripts import scripts_page
@@ -46,33 +47,51 @@ def technical_page(page: ft.Page):
     drag_area = create_drag_area(page, drawer)
 
     # Funções para os ícones
-    def on_add_clicked(e):
-        print("Adicionar clicado!")
+    def on_windows_clicked(e):
+        from Libs.Technical.windows import windows_page
+        page.clean()
+        windows_page(page)
+        page.update()
 
-    def on_remove_clicked(e):
-        print("Remover clicado!")
+    def on_tools_clicked(e):
+        from Libs.Technical.ferramentas import ferramentas_page
+        page.clean()
+        ferramentas_page(page)
+        page.update()
 
-    def on_edit_clicked(e):
-        print("Editar clicado!")
+    def on_sn_clicked(e):
+        from Libs.Technical.sn_tools import sn_tools_page
+        page.clean()
+        sn_tools_page(page)
+        page.update()
 
-    def on_settings_clicked(e):
-        print("Configurações clicadas!")
+    def on_firewall_clicked(e):
+        from Libs.Technical.firewall import firewall_page
+        page.clean()
+        firewall_page(page)
+        page.update()
 
-    def on_list_clicked(e):
-        print("Lista clicada!")
+    def on_analytics_clicked(e):
+        from Libs.Technical.analytics import analytics_page
+        page.clean()
+        analytics_page(page)
+        page.update()
 
-    def on_info_clicked(e):
-        print("Informação clicada!")
+    def on_install_clicked(e):
+        from Libs.Technical.install import install_page
+        page.clean()
+        install_page(page)
+        page.update()
 
     # Lista de ícones e rótulos com cores
     icon_size = 200  # Tamanho do ícone
     icons_with_labels = [
-        (ft.icons.WINDOW, "Windows Tools", on_add_clicked, ft.colors.RED),
-        (ft.icons.BUILD_CIRCLE_OUTLINED, "Ferramentas", on_remove_clicked, ft.colors.GREEN),
-        (ft.icons.WALLET_TRAVEL_ROUNDED, "SN Tools", on_edit_clicked, ft.colors.BLUE),
-        (ft.icons.WIFI, "Rede e Firewall", on_settings_clicked, ft.colors.ORANGE),
-        (ft.icons.ANALYTICS_OUTLINED, "Verificações", on_list_clicked, ft.colors.PURPLE),
-        (ft.icons.INSTALL_DESKTOP, "Instalações", on_info_clicked, ft.colors.YELLOW),
+        (ft.icons.WINDOW, "Windows Tools", on_windows_clicked, ft.colors.RED),
+        (ft.icons.BUILD_CIRCLE_OUTLINED, "Ferramentas", on_tools_clicked, ft.colors.GREEN),
+        (ft.icons.WALLET_TRAVEL_ROUNDED, "SN Tools", on_sn_clicked, ft.colors.BLUE),
+        (ft.icons.WIFI, "Rede e Firewall", on_firewall_clicked, ft.colors.ORANGE),
+        (ft.icons.ANALYTICS_OUTLINED, "Verificações", on_analytics_clicked, ft.colors.PURPLE),
+        (ft.icons.INSTALL_DESKTOP, "Instalações", on_install_clicked, ft.colors.YELLOW),
     ]
 
     # Criar linhas de ícones com textos

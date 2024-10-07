@@ -5,6 +5,7 @@ FRAMEKORKS:
     - ELEVATE
     - PYREBASE4
     - PYPERCLIP
+    - GDOWN
 
 ## Requisitos
 

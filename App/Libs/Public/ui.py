@@ -6,7 +6,6 @@ def configure_main_window(page: ft.Page):
     page.title = "Aplicativo"
     page.window.max_height = 700
     page.window.max_width = 1150
-    page.window.center()
     page.window.frameless = True
     page.window.title_bar_hidden = True
     page.window.width = 1150
@@ -26,7 +25,24 @@ def login_page(page: ft.Page):
     page.window.resizable = False
     page.theme_mode = 'Dark'
 
-    drag_area = create_drag_area(page, None)
+    drag_area = ft.WindowDragArea(
+        ft.Container(
+            content=ft.Row(
+                controls=[
+                    ft.IconButton(ft.icons.CLOSE, on_click=lambda e: page.window.close(), width=50, height=50, icon_color='White')
+                ],                
+                alignment=ft.MainAxisAlignment.END,
+                vertical_alignment=ft.MainAxisAlignment.CENTER,
+                expand=True
+            ),
+            bgcolor=ft.colors.TRANSPARENT,
+            padding=ft.padding.all(0),
+            height=40,
+            margin=ft.Margin(left=0, right=0, top=0, bottom=0)
+        ),
+        maximizable=False,
+        expand=False
+    )
 
     username_input = ft.TextField(label="E-mail", width=300, border_color=ft.colors.WHITE)
     password_input = ft.TextField(label="Senha", password=True, width=300, can_reveal_password=True, border_color=ft.colors.WHITE)
