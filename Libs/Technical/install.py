@@ -29,8 +29,7 @@ def install_with_progress(page, install_function, *args):
     pb = ft.ProgressBar(width=400, color="amber", bgcolor="#eeeeee", value=0)
     dialog = ft.AlertDialog(
         title=ft.Text("Instalação em progresso..."),
-        content=ft.Column([pb, ft.Text("Aguarde...", text_align=ft.TextAlign.CENTER)]),
-        actions=[ft.TextButton("Cancelar", on_click=lambda e: close_dialog(page, dialog))],
+        content=pb,
         bgcolor='#081c15',
         actions_alignment=ft.MainAxisAlignment.CENTER
     )
@@ -39,17 +38,16 @@ def install_with_progress(page, install_function, *args):
     dialog.open = True
     page.update()
 
-    progress_bar = dialog.content.controls[0]
     progress_running = True  # Variável de controle para o loop de progresso
 
     # Função que simula um loop contínuo de progresso
     def progress_loop():
         while progress_running:
-            progress_bar.value += 0.05
-            if progress_bar.value >= 1:
-                progress_bar.value = 0
+            pb.value += 0.05
+            if pb.value >= 1:
+                pb.value = 0
             page.update()
-            sleep(0.05)  # Aumente ou diminua para controlar a velocidade do loop
+            sleep(0.1)  # Aumente ou diminua para controlar a velocidade do loop
 
     # Executa a instalação em uma thread separada
     def run_installation():
