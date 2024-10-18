@@ -1,7 +1,12 @@
+import os
+import pyperclip, pyodbc
 import flet as ft
 from pathlib import Path
+from Libs.Data.sql_server_config import initialize_sql_server
 from Libs.Public.ui import configure_main_window, go_to_login
 from Libs.Public.utils import create_drag_area, create_drawer
+
+pastas_historico = []
 
 def handle_change(e, page: ft.Page):
     from Libs.Public.menu import menu_page
@@ -31,18 +36,148 @@ def handle_change(e, page: ft.Page):
 
     page.close(e.control)
 
-def redirect_to(page: ft.Page, target_page_function):
-    page.clean()
-    target_page_function(page)
-    page.update()
+def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
+    global pastas_historico
+    try:
+        folder_rows = []
+        if nivel == 0:
+            pastas_historico.clear()
+            pastas_historico.append(caminho)
+        else:
+            pastas_historico.append(caminho)
 
-def folder_redirect(page: ft.Page, target_page_function):
-    redirect_to(page, target_page_function)
+        page.controls.clear()
+
+        # Manter a drag bar ao atualizar a página
+        if len(page.controls) == 0:
+            drawer = create_drawer(page)
+            drawer.selected_index = 1
+            drawer.on_change = lambda e: handle_change(e, page)
+            drag_area = create_drag_area(page, drawer)
+            page.add(drag_area)
+
+        voltar_button = ft.IconButton(
+            icon=ft.icons.ARROW_BACK,
+            on_click=lambda e: voltar(page),
+            tooltip="Voltar",
+            disabled=(nivel == 0)  # Desativa o botão se estiver no nível inicial
+        )
+
+        search_field = ft.TextField(
+            hint_text="Pesquisar Pastas e Arquivos...",
+            expand=True,
+            bgcolor="#000000",
+            color=ft.colors.WHITE,
+            border_color=ft.colors.WHITE,
+            text_size=20,
+            autofocus=True,
+            value=filtro,  # Preenche o valor atual da pesquisa
+            on_change=lambda e: listar_pastas_e_arquivos(caminho, page, nivel, e.control.value)
+        )
+
+        search_container = ft.Row(
+            controls=[voltar_button, search_field],
+            alignment=ft.MainAxisAlignment.START,
+            spacing=10
+        )
+
+        page.add(search_container)
+
+        arquivos_ignorados = ['desktop.ini', '__pycache__']
+
+        # Função para buscar no nível atual ou recursivamente se houver um filtro
+        def buscar_arquivos_e_pastas(pasta, filtro, recursivo=False):
+            resultados = []
+            with os.scandir(pasta) as it:
+                for entry in it:
+                    if filtro.lower() in entry.name.lower() and entry.name not in arquivos_ignorados:
+                        if entry.is_dir():
+                            resultados.append((entry.path, 'pasta'))
+                        elif entry.is_file() and entry.name.endswith('.sql'):
+                            resultados.append((entry.path, 'arquivo'))
+
+                    # Se o filtro estiver ativo, buscar recursivamente
+                    if recursivo and entry.is_dir():
+                        resultados.extend(buscar_arquivos_e_pastas(entry.path, filtro, recursivo=True))
+            return resultados
+
+        # Se houver filtro, buscar recursivamente, senão, buscar apenas no nível atual
+        recursivo = bool(filtro)  # Buscar recursivamente apenas se houver filtro
+        resultados = buscar_arquivos_e_pastas(caminho, filtro, recursivo)
+
+        # Exibir os resultados encontrados
+        for caminho_completo, tipo in resultados:
+            item = os.path.basename(caminho_completo)
+            item_tooltip = item
+
+            if tipo == 'pasta':
+                folder_button = ft.Container(
+                    content=ft.Column(
+                        controls=[ft.Icon(ft.icons.FOLDER, size=100, color=ft.colors.YELLOW),
+                                  ft.Text(item, size=16, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER, tooltip=item_tooltip)],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        spacing=0
+                    ),
+                    on_click=lambda e, path=caminho_completo: listar_pastas_e_arquivos(path, page, nivel + 1, filtro),
+                    padding=ft.padding.all(2),
+                    bgcolor='#081c15',
+                    border_radius=ft.border_radius.all(10),
+                    width=150,
+                    height=150
+                )
+                folder_rows.append(folder_button)
+            elif tipo == 'arquivo':
+                file_button = ft.Container(
+                    content=ft.Column(
+                        controls=[ft.Icon(ft.icons.DESCRIPTION, size=100, color=ft.colors.GREEN),
+                                  ft.Text(item, size=12, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER, tooltip=item_tooltip)],
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        spacing=5
+                    ),
+                    padding=ft.padding.all(10),
+                    bgcolor='#081c15',
+                    border_radius=ft.border_radius.all(10),
+                    width=150,
+                    height=150,
+                    on_click=lambda e, path=caminho_completo: abrir_arquivo_sql(path, page)
+                )
+                folder_rows.append(file_button)
+
+        if folder_rows:
+            scroll_container = ft.Container(
+                content=ft.Row(
+                    controls=folder_rows,
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    wrap=True,
+                    scroll=ft.ScrollMode.HIDDEN
+                ),
+                height=530,
+                bgcolor='Transparent'
+            )
+            page.add(scroll_container)
+        else:
+            page.add(ft.Text("Nenhuma pasta ou arquivo encontrado.", color=ft.colors.RED))
+
+        page.update()
+    except PermissionError:
+        mostrar_erro(page, "Sem permissão para acessar esta pasta.")
+    except FileNotFoundError:
+        mostrar_erro(page, "Pasta não encontrada.")
+    except Exception as e:
+        mostrar_erro(page, f"Ocorreu um erro: {str(e)}")
+
+
+def voltar(page: ft.Page):
+    global pastas_historico
+    if len(pastas_historico) > 1:
+        pastas_historico.pop()  # Remove a pasta atual do histórico
+        caminho_anterior = pastas_historico[-1]  # Obtém a pasta anterior
+        listar_pastas_e_arquivos(caminho_anterior, page, len(pastas_historico) - 1)  # Retorna ao nível anterior
 
 def scripts_page(page: ft.Page):
     configure_main_window(page)
-
-    # Configurações da página
     page.bgcolor = '#081c15'
     page.title = "Menu Scripts"
     page.window.title_bar_hidden = True
@@ -57,141 +192,105 @@ def scripts_page(page: ft.Page):
     drawer.on_change = lambda e: handle_change(e, page)
     drag_area = create_drag_area(page, drawer)
 
-    # Lista de pastas com funções de redirecionamento
-    folders = [
-        ("Tabelas", go_to_folder1),
-        ("Notas", go_to_folder2),
-        ("Virada", go_to_folder3),
-        ("Migração", go_to_folder4),
-        ("Ferramentas", go_to_folder5),
-        ("Outros", go_to_folder6)
-    ]
-
-    # Função de busca de arquivos SQL
-    def search_sql_files(search_text):
-        caminho_pasta = Path("C:/Users/jeffe/Documents/Mega Pessoal/SCRIPT")
-        return [str(file) for file in caminho_pasta.rglob('*.sql') if search_text in file.name.lower()]
-
-    # Atualiza os botões de arquivos SQL e pastas encontrados
-    def update_results(search_text):
-        sql_files = search_sql_files(search_text) if search_text else []  # Atualiza a busca de arquivos SQL
-        filtered_folders = [folder for folder in folders if search_text in folder[0].lower()]
-
-        folder_rows = []
-        sql_file_rows = []
-        
-        # Organiza pastas em linhas
-        for folder_name, target_page_function in filtered_folders:
-            folder_button = ft.Container(
-                content=ft.Column(
-                    controls=[
-                        ft.Icon(ft.icons.FOLDER, size=100, color=ft.colors.YELLOW),
-                        ft.Text(folder_name, size=16, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER)
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=5
-                ),
-                on_click=lambda e, func=target_page_function: folder_redirect(page, func),
-                padding=ft.padding.all(10),
-                bgcolor='#081c15',
-                border_radius=ft.border_radius.all(10),
-                width=150,
-                height=150
-            )
-            folder_rows.append(folder_button)
-
-        # Organiza arquivos SQL em linhas
-        for file_path in sql_files:
-            sql_file_button = ft.Container(
-                content=ft.Column(
-                    controls=[
-                        ft.Icon(ft.icons.DESCRIPTION, size=100, color=ft.colors.GREEN),
-                        ft.Text(Path(file_path).name, size=16, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER)
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    spacing=5
-                ),
-                padding=ft.padding.all(10),
-                bgcolor='#081c15',
-                border_radius=ft.border_radius.all(10),
-                width=150,
-                height=200
-            )
-            sql_file_rows.append(sql_file_button)
-
-        # Limpa e atualiza a página com os novos botões
-        page.controls.clear()
-        page.add(drag_area)
-        page.add(search_container)
-
-        # Adiciona pastas em uma grade
-        if folder_rows:
-            page.add(ft.Row(controls=folder_rows, alignment=ft.MainAxisAlignment.CENTER, wrap=True))
-
-        # Adiciona arquivos SQL em uma grade
-        if sql_file_rows:
-            page.add(ft.Row(controls=sql_file_rows, alignment=ft.MainAxisAlignment.CENTER, wrap=True))
-
-        page.update()  # Atualiza a página, mas mantém o foco
-
-    # Campo de busca
-    def search_changed(e):
-        search_text = e.control.value.lower()
-        update_results(search_text)
-
-    search_container = ft.Container(
-        content=ft.TextField(
-            hint_text="Pesquisar Pastas e Arquivos SQL...",
-            on_change=search_changed,
-            expand=True,
-            bgcolor="#000000",  # Fundo preto
-            color=ft.colors.WHITE,  # Texto branco
-            border_color=ft.colors.WHITE,  # Bordas brancas
-            text_size=20,  # Aumenta o tamanho do texto
-            autofocus=True  # Mantém o foco no campo de busca
-        ),
-        padding=ft.padding.all(10),
-    )
-
-    # Inicializa a página com os controles
+    # Adiciona a lista de pastas para navegação
     page.add(drag_area)
-    page.add(search_container)
-    update_results('')  # Atualiza inicialmente para mostrar somente pastas
+    listar_pastas_e_arquivos("./Libs/Scripts", page)
 
-def go_to_folder1(page: ft.Page):
-    from Libs.Scripts.Tabelas.tabelas import tabelas_page
-    page.clean()
-    tabelas_page(page)
+def abrir_arquivo_sql(caminho, page: ft.Page):
+    try:
+        # Abre o arquivo .sql e lê seu conteúdo
+        with open(caminho, 'r', encoding='utf-8') as file:
+            conteudo = file.read()
+
+        # Função para copiar o conteúdo para a área de transferência
+        def copiar_conteudo(e):
+            pyperclip.copy(conteudo)
+            print("Conteúdo copiado para a área de transferência.")
+
+        # Função para solicitar o valor de uma variável DECLARE
+        def solicitar_valor_variavel(variavel):
+            # Aqui você pode adicionar uma interface para o usuário inserir o valor
+            # Por enquanto, usaremos uma entrada padrão para simplificar
+            valor = input(f"Insira o valor para a variável {variavel}: ")
+            return valor
+
+        # Função para substituir o valor da variável DECLARE
+        def substituir_valor_declare(conteudo):
+            linhas = conteudo.splitlines()
+            novo_conteudo = []
+            for linha in linhas:
+                if linha.strip().upper().startswith("DECLARE"):
+                    # Extrai o nome da variável e substitui pelo valor fornecido pelo usuário
+                    partes = linha.split()
+                    if len(partes) > 1:
+                        variavel = partes[1]
+                        valor = solicitar_valor_variavel(variavel)
+                        linha = f"DECLARE {variavel} = {valor};"
+                novo_conteudo.append(linha)
+            return "\n".join(novo_conteudo)
+
+        # Função para executar o comando SQL no servidor SQL
+        def executar_sql(e):
+            try:
+                # Substitui o valor da variável DECLARE, se necessário
+                conteudo_modificado = substituir_valor_declare(conteudo)
+
+                # Inicializa a conexão com o SQL Server
+                conn = initialize_sql_server()
+                if conn is not None:
+                    cursor = conn.cursor()
+
+                    # Executa o script SQL
+                    print("Executando SQL...")
+                    cursor.execute(conteudo_modificado)
+                    conn.commit()
+
+                    # Fecha o cursor e a conexão
+                    cursor.close()
+                    conn.close()
+                    print("Script SQL executado com sucesso.")
+                else:
+                    print("Erro ao estabelecer a conexão com o banco de dados.")
+            except pyodbc.Error as db_err:
+                print(f"Erro no banco de dados: {str(db_err)}")
+            except Exception as ex:
+                print(f"Erro ao executar o SQL: {str(ex)}")
+
+        # Exibir o conteúdo do arquivo e botões de ação no diálogo modal
+        dlg_modal = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Conteúdo do arquivo .sql"),
+            content=ft.Container(
+                content=ft.Text(conteudo, selectable=True),
+                height=300,
+                width=500
+            ),
+            actions=[
+                ft.TextButton("Copiar", on_click=copiar_conteudo),
+                ft.TextButton("Executar", on_click=executar_sql),
+                ft.TextButton("Fechar", on_click=lambda e: close_dialog(page, dlg_modal)),
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+        )
+        
+        # Adiciona o diálogo modal à página
+        page.overlay.append(dlg_modal)
+        dlg_modal.open = True
+        page.update()
+    except Exception as e:
+        print(f"Erro ao abrir o arquivo: {str(e)}")
+
+
+def close_dialog(page: ft.Page, dialog: ft.AlertDialog):
+    dialog.open = False
     page.update()
 
-def go_to_folder2(page: ft.Page):
-    from Libs.Scripts.Notas.notas import notas_page
-    page.clean()
-    notas_page(page)
-    page.update()
-
-def go_to_folder3(page: ft.Page):
-    from Libs.Scripts.Virada.virada import virada_page
-    page.clean()
-    virada_page(page)
-    page.update()
-
-def go_to_folder4(page: ft.Page):
-    from Libs.Scripts.Migração.migracao import migracao_page
-    page.clean()
-    migracao_page(page)
-    page.update()
-
-def go_to_folder5(page: ft.Page):
-    from Libs.Scripts.Ferramentas.ferramentas import ferramentas_page
-    page.clean()
-    ferramentas_page(page)
-    page.update()
-
-def go_to_folder6(page: ft.Page):
-    from Libs.Scripts.Outros.outros import outros_page
-    page.clean()
-    outros_page(page)
+def mostrar_erro(page, mensagem):
+    page.controls.clear()
+    error_container = ft.Container(
+        content=ft.Text(mensagem, color=ft.colors.RED),
+        padding=ft.padding.all(10),
+        alignment=ft.alignment.center
+    )
+    page.add(error_container)
     page.update()
