@@ -227,5 +227,5 @@ def tabelas_page(page: ft.Page):
     page.theme_mode = 'Dark'
     page.window.border_color = ft.colors.TRANSPARENT
 
-    path_to_list = "./Libs/Scripts/Tabelas/Tables/"
+    path_to_list = "./Libs/Scripts"
     listar_pastas_e_arquivos(path_to_list, page)

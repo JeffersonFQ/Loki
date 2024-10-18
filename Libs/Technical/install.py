@@ -30,6 +30,7 @@ def install_with_progress(page, install_function, *args):
     dialog = ft.AlertDialog(
         title=ft.Text("Instalação em progresso..."),
         content=pb,
+        modal=False,
         bgcolor='#081c15',
         actions_alignment=ft.MainAxisAlignment.CENTER
     )
@@ -91,90 +92,110 @@ def install_java(page, version):
                 os.remove(install_command)
 
 def install_sql_server(page, version):
+    # Definindo URLs e comandos de instalação
     if version == "2017":
         file_url = "https://drive.google.com/uc?id=1t9d8bOe9-n2XsC8MnnhswBG633K7-bp0"
         install_command = "SQL_Server_2017_installer.exe"
+        config_file = "./Libs/Technical/Resources/ConfigurationFile17.ini"  # Arquivo de configuração para SQL Server 2017
     else:
         file_url = "https://drive.google.com/uc?id=1tJMvqSvrI64pB3b4fYexfKzeAktEbYQ4"
         install_command = "SQL_Server_2019_installer.exe"
+        config_file = "./Libs/Technical/Resources/ConfigurationFile19.ini"  # Arquivo de configuração para SQL Server 2019 (se precisar no futuro)
 
+    # Fazendo o download do instalador
     if download_installer(page, file_url, install_command):
         try:
-            subprocess.run([install_command], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # Executando o instalador com o arquivo de configuração
+            subprocess.run([install_command, "/ConfigurationFile=" + config_file], 
+                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
             show_snackbar(page, f"SQL Server {version} foi instalado com sucesso!", color=ft.colors.GREEN)
         except subprocess.CalledProcessError as e:
             show_snackbar(page, f"Erro na instalação do SQL Server {version}: {e.stderr.decode()}", color=ft.colors.RED)
         finally:
+            # Limpando o instalador
             if os.path.exists(install_command):
                 os.remove(install_command)
 
 def install_ssms(page):
-    file_url = "https://drive.google.com/uc?id=1dB0plPWXRDO-xM6jZxx7tiFjrXQrxL7-"
-    install_command = "SSMS_installer.exe"
+    def run_install_ssms():
+        file_url = "https://drive.google.com/uc?id=1tB0plPWXRDO-xM6jZxx7tiFjrXQrxL7-"
+        install_command = "SSMS_installer.exe"
 
-    if download_installer(page, file_url, install_command):
-        try:
-            subprocess.run([install_command, '/install', '/quiet', '/norestart'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            show_snackbar(page, "SQL Server Management Studio foi instalado com sucesso!", color=ft.colors.GREEN)
-        except subprocess.CalledProcessError as e:
-            show_snackbar(page, f"Erro na instalação do SSMS: {e.stderr.decode()}", color=ft.colors.RED)
-        finally:
-            if os.path.exists(install_command):
-                os.remove(install_command)
+        if download_installer(page, file_url, install_command):
+            try:
+                subprocess.run([install_command, '/install', '/quiet', '/norestart'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                show_snackbar(page, "SQL Server Management Studio foi instalado com sucesso!", color=ft.colors.GREEN)
+            except subprocess.CalledProcessError as e:
+                show_snackbar(page, f"Erro na instalação do SSMS: {e.stderr.decode()}", color=ft.colors.RED)
+            finally:
+                if os.path.exists(install_command):
+                    os.remove(install_command)
+
+    install_with_progress(page, run_install_ssms)
 
 def install_unimake(page):
-    file_url = "https://drive.google.com/uc?id=1dQwNxSOQXi7BUZVb0LsmyfX1IGZYCSmP"
-    install_command = "Unimake_installer.exe"
+    def run_install_unimake():
+        file_url = "https://drive.google.com/uc?id=1dQwNxSOQXi7BUZVb0LsmyfX1IGZYCSmP"
+        install_command = "Unimake_installer.exe"
 
-    if download_installer(page, file_url, install_command):
-        try:
-            subprocess.run([install_command, '/VERYSILENT'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            show_snackbar(page, "Unimake foi instalado com sucesso!", color=ft.colors.GREEN)
-        except subprocess.CalledProcessError as e:
-            show_snackbar(page, f"Erro na instalação do Unimake: {e.stderr.decode()}", color=ft.colors.RED)
-        finally:
-            if os.path.exists(install_command):
-                os.remove(install_command)
+        if download_installer(page, file_url, install_command):
+            try:
+                subprocess.run([install_command, '/VERYSILENT'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                show_snackbar(page, "Unimake foi instalado com sucesso!", color=ft.colors.GREEN)
+            except subprocess.CalledProcessError as e:
+                show_snackbar(page, f"Erro na instalação do Unimake: {e.stderr.decode()}", color=ft.colors.RED)
+            finally:
+                if os.path.exists(install_command):
+                    os.remove(install_command)
+
+    install_with_progress(page, run_install_unimake)
 
 def install_tomcat(page):
-    file_url = "https://drive.google.com/uc?id=1cJ8W3Dv5vAkpPfZVoG02ekhxl9-pQqRd"
-    install_command = "Tomcat_installer.exe"
+    def run_install_tomcat():
+        file_url = "https://drive.google.com/uc?id=1cJ8W3Dv5vAkpPfZVoG02ekhxl9-pQqRd"
+        install_command = "Tomcat_installer.exe"
 
-    if download_installer(page, file_url, install_command):
-        try:
-            subprocess.run([install_command, '/S'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            show_snackbar(page, "Tomcat foi instalado com sucesso!", color=ft.colors.GREEN)
-        except subprocess.CalledProcessError as e:
-            show_snackbar(page, f"Erro na instalação do Tomcat: {e.stderr.decode()}", color=ft.colors.RED)
-        finally:
-            if os.path.exists(install_command):
-                os.remove(install_command)
+        if download_installer(page, file_url, install_command):
+            try:
+                subprocess.run([install_command, '/S'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                show_snackbar(page, "Tomcat foi instalado com sucesso!", color=ft.colors.GREEN)
+            except subprocess.CalledProcessError as e:
+                show_snackbar(page, f"Erro na instalação do Tomcat: {e.stderr.decode()}", color=ft.colors.RED)
+            finally:
+                if os.path.exists(install_command):
+                    os.remove(install_command)
+
+    install_with_progress(page, run_install_tomcat)
 
 def configure_tomcat(page):
-    server_file_path = "C:\\Program Files\\Apache Software Foundation\\Tomcat 8.0\\conf\\server.xml"
-    show_snackbar(page, "Configurando o Tomcat...", color=ft.colors.BLUE)
+    def run_configure_tomcat():
+        server_file_path = "C:\\Program Files\\Apache Software Foundation\\Tomcat 8.0\\conf\\server.xml"
+        show_snackbar(page, "Configurando o Tomcat...", color=ft.colors.BLUE)
 
-    try:
-        with open(server_file_path, 'r') as file:
-            config = file.readlines()
+        try:
+            with open(server_file_path, 'r') as file:
+                config = file.readlines()
 
-        for i, line in enumerate(config):
-            if '<Connector port="8080"' in line:
-                config[i] = line.replace('8080', '7071')
-                break
+            for i, line in enumerate(config):
+                if '<Connector port="8080"' in line:
+                    config[i] = line.replace('8080', '7071')
+                    break
 
-        for i, line in enumerate(config):
-            if 'user=' in line:
-                config[i] = f'    <User name="admin" password="admin"/>\n'
-                break
+            for i, line in enumerate(config):
+                if 'user=' in line:
+                    config[i] = f'    <User name="admin" password="admin"/>\n'
+                    break
 
-        with open(server_file_path, 'w') as file:
-            file.writelines(config)
+            with open(server_file_path, 'w') as file:
+                file.writelines(config)
 
-        show_snackbar(page, "Configuração do Tomcat concluída com sucesso!", color=ft.colors.GREEN)
+            show_snackbar(page, "Configuração do Tomcat concluída com sucesso!", color=ft.colors.GREEN)
 
-    except Exception as e:
-        show_snackbar(page, f"Erro ao configurar o Tomcat: {str(e)}", color=ft.colors.RED)
+        except Exception as e:
+            show_snackbar(page, f"Erro ao configurar o Tomcat: {str(e)}", color=ft.colors.RED)
+
+    install_with_progress(page, run_configure_tomcat)
 
 def choose_java_version(page):
     def on_version_selected(version):
