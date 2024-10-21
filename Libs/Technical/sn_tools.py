@@ -31,18 +31,18 @@ def sn_tools_page(page: ft.Page):
     spacing = 8     # Espaçamento entre ícone e texto
 
     icons_with_labels = [
-        (ft.icons.DESCRIPTION, "Complexidade de Senha", lambda e: secpol_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Gerenciamento do Computador", lambda e: compmgmt_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Contas de Usuário", lambda e: userpasswords_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Politica Grupo Local", lambda e: gpedit_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Inicializar", lambda e: startup_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Propriedades de Internet", lambda e: inetcpl_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Propriedades do Sistema", lambda e: sysdm_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Editor de Registro", lambda e: regedit_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Configuração do Sistema", lambda e: msconfig_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Visualizador de Eventos", lambda e: eventvwr_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Painel de Programas", lambda e: appwiz_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Windows Firewall", lambda e: firewall_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar APIs no servidor", lambda e: ver_api_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Conferir Versão FV", lambda e: ver_fv_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Conferir Versão B2B", lambda e: ver_b2b_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Conferir Versão Checkout", lambda e: ver_checkout_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar comunicação Tomcat", lambda e: ver_tomcat_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Configurar Config", lambda e: config_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Configurar Config_compilado", lambda e: configcompilado_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Configurar Agendador", lambda e: agendador_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Abrir Tomcat e Unimake", lambda e: open_apps_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Abrir S7 pelo prompt", lambda e: open_s7_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Fechar Janelas S7", lambda e: close_s7_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Revogar 1 acesso", lambda e: kill_old_conf(page), '#CC8105'),
     ]
 
     # Definir número de colunas
@@ -117,78 +117,41 @@ def sn_tools_page(page: ft.Page):
     page.add(main_container)
     page.update()
 
-def secpol_conf(page):
-    try:
-        os.system("secpol.msc")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Política de Segurança Local.", "#D9534F")
+def ver_api_conf(page):
+    print("Verificar APIs")
 
-def compmgmt_conf(page):
-    try:
-        os.system("compmgmt.msc")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Gerenciamento do Computador.", "#D9534F")
+def ver_fv_conf(page):
+    print("Verificar FV")
 
-def userpasswords_conf(page):
-    try:
-        os.system("control userpasswords2")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Contas de Usuário.", "#D9534F")
+def ver_b2b_conf(page):
+    print("Verificar B2B")
 
-def gpedit_conf(page):
-    try:
-        os.system("gpedit.msc")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Política de Grupo Local.", "#D9534F")
+def ver_checkout_conf(page):
+    print("Verficar Checkout")
 
-def startup_conf(page):
-    try:
-        startup_path = os.path.join(os.getenv("APPDATA"), "Microsoft", "Windows", "Start Menu", "Programs", "Startup")
-        os.startfile(startup_path)
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Inicializar.", "#D9534F")
+def ver_tomcat_conf(page):
+    print("Verificar Tomcat")
 
-def inetcpl_conf(page):
-    try:
-        os.system("inetcpl.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Propriedades de Internet.", "#D9534F")
+def config_conf(page):
+    print("Configurar Config")
 
-def sysdm_conf(page):
-    try:
-        os.system("sysdm.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Propriedades do Sistema.", "#D9534F")
+def configcompilado_conf(page):
+    print("Configurar Compilado")
 
-def regedit_conf(page):
-    try:
-        os.system("regedit")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Editor de Registro.", "#D9534F")
+def agendador_conf(page):
+    print("Configurar Agendador")
 
-def msconfig_conf(page):
-    try:
-        os.system("msconfig")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Configuração do Sistema.", "#D9534F")
+def open_apps_conf(page):
+    print("Abrir Tomcat e Unimake")
 
-def eventvwr_conf(page):
-    try:
-        os.system("eventvwr")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Visualizador de Eventos.", "#D9534F")
+def open_s7_conf(page):
+    print("Abrir S7")
 
-def appwiz_conf(page):
-    try:
-        os.system("appwiz.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Painel de Programas.", "#D9534F")
+def close_s7_conf(page):
+    print("Fechar S7")
 
-def firewall_conf(page):
-    try:
-        os.system("firewall.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Windows Firewall.", "#D9534F")
+def kill_old_conf(page):
+    print("Kill em 1 usuário")
 
 def go_to_technical_page(page):
     from Libs.Technical.technical import technical_page

@@ -25,24 +25,23 @@ def analytics_page(page: ft.Page):
 
     drag_area = create_drag_area(page, drawer)
 
-    # Tamanhos padrão para ícones e texto
-    icon_size = 80  # Tamanho do ícone
-    text_size = 16  # Tamanho do texto
-    spacing = 8     # Espaçamento entre ícone e texto
+    icon_size = 80 
+    text_size = 16
+    spacing = 8
 
     icons_with_labels = [
-        (ft.icons.DESCRIPTION, "Complexidade de Senha", lambda e: secpol_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Gerenciamento do Computador", lambda e: compmgmt_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Contas de Usuário", lambda e: userpasswords_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Politica Grupo Local", lambda e: gpedit_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Inicializar", lambda e: startup_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Propriedades de Internet", lambda e: inetcpl_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Propriedades do Sistema", lambda e: sysdm_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Editor de Registro", lambda e: regedit_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Configuração do Sistema", lambda e: msconfig_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Visualizador de Eventos", lambda e: eventvwr_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Painel de Programas", lambda e: appwiz_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Windows Firewall", lambda e: firewall_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar Empresas da Base", lambda e: empresa_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar configurações completas", lambda e: all_config_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar Unimake", lambda e: unimake_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar porta do Tomcat", lambda e: tomcat_port_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar Consumo RAM", lambda e: ram_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar Consumo Processador", lambda e: processador_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar tabela Pessoa", lambda e: pessoa_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar tabela Produto", lambda e: produto_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar Status Sefaz", lambda e: sefaz_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar Odin", lambda e: odin_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar porta aberta", lambda e: port_open_ver(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Verificar Produtos B2B", lambda e: b2b_produto_ver(page), '#CC8105'),
     ]
 
     # Definir número de colunas
@@ -117,78 +116,41 @@ def analytics_page(page: ft.Page):
     page.add(main_container)
     page.update()
 
-def secpol_conf(page):
-    try:
-        os.system("secpol.msc")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Política de Segurança Local.", "#D9534F")
+def empresa_ver(page):
+    print("Verificar Empresa")
 
-def compmgmt_conf(page):
-    try:
-        os.system("compmgmt.msc")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Gerenciamento do Computador.", "#D9534F")
+def all_config_ver(page):
+    print("Verificar tudo")
 
-def userpasswords_conf(page):
-    try:
-        os.system("control userpasswords2")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Contas de Usuário.", "#D9534F")
+def unimake_ver(page):
+    print("Verificar Unimake")
 
-def gpedit_conf(page):
-    try:
-        os.system("gpedit.msc")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Política de Grupo Local.", "#D9534F")
+def tomcat_port_ver(page):
+    print("Perificar Tomcat")
 
-def startup_conf(page):
-    try:
-        startup_path = os.path.join(os.getenv("APPDATA"), "Microsoft", "Windows", "Start Menu", "Programs", "Startup")
-        os.startfile(startup_path)
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Inicializar.", "#D9534F")
+def ram_ver(page):
+    print("Verificar Ram")
 
-def inetcpl_conf(page):
-    try:
-        os.system("inetcpl.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Propriedades de Internet.", "#D9534F")
+def processador_ver(page):
+    print("Verificar Processador")
 
-def sysdm_conf(page):
-    try:
-        os.system("sysdm.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Propriedades do Sistema.", "#D9534F")
+def pessoa_ver(page):
+    print("Verificar Pessoa")
 
-def regedit_conf(page):
-    try:
-        os.system("regedit")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Editor de Registro.", "#D9534F")
+def produto_ver(page):
+    print("Verificar Produto")
 
-def msconfig_conf(page):
-    try:
-        os.system("msconfig")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Configuração do Sistema.", "#D9534F")
+def sefaz_ver(page):
+    print("Verificar Sefaz")
 
-def eventvwr_conf(page):
-    try:
-        os.system("eventvwr")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Visualizador de Eventos.", "#D9534F")
+def odin_ver(page):
+    print("Verificar Odin")
 
-def appwiz_conf(page):
-    try:
-        os.system("appwiz.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Painel de Programas.", "#D9534F")
+def port_open_ver(page):
+    print("Verificar Portas abertas")
 
-def firewall_conf(page):
-    try:
-        os.system("firewall.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Windows Firewall.", "#D9534F")
+def b2b_produto_ver(page):
+    print("Verificar produto B2B")
 
 def go_to_technical_page(page):
     from Libs.Technical.technical import technical_page

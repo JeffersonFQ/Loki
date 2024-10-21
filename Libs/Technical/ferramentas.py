@@ -25,24 +25,23 @@ def ferramentas_page(page: ft.Page):
 
     drag_area = create_drag_area(page, drawer)
 
-    # Tamanhos padrão para ícones e texto
-    icon_size = 80  # Tamanho do ícone
-    text_size = 16  # Tamanho do texto
-    spacing = 8     # Espaçamento entre ícone e texto
+    icon_size = 80
+    text_size = 16
+    spacing = 8
 
     icons_with_labels = [
-        (ft.icons.DESCRIPTION, "Complexidade de Senha", lambda e: secpol_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Gerenciamento do Computador", lambda e: compmgmt_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Contas de Usuário", lambda e: userpasswords_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Politica Grupo Local", lambda e: gpedit_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Inicializar", lambda e: startup_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Propriedades de Internet", lambda e: inetcpl_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Propriedades do Sistema", lambda e: sysdm_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Editor de Registro", lambda e: regedit_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Configuração do Sistema", lambda e: msconfig_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Visualizador de Eventos", lambda e: eventvwr_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Painel de Programas", lambda e: appwiz_conf(page), '#CC8105'),
-        (ft.icons.DESCRIPTION, "Windows Firewall", lambda e: firewall_conf(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Gerar Backup troca Servidor", lambda e: gerar_backup(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Abrir SSMS", lambda e: open_ssms(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Dispositivos na rede", lambda e: dispositivos_rede(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Abrir pasta S7", lambda e: open_s7(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Abrir pasta WebApps", lambda e: open_webapps(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Abrir Mega - Compilados", lambda e: open_mega_compilados(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Abrir Mega - Manuais", lambda e: open_mega_manuais(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Abrir Drive - Compilados", lambda e: open_drive(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Ativar o Windows", lambda e: windows_activate(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Reiniciar Maquina", lambda e: reload_win(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Reiniciar Agendado", lambda e: temp_reload_win(page), '#CC8105'),
+        (ft.icons.DESCRIPTION, "Desligar agendado", lambda e: temp_off_win(page), '#CC8105'),
     ]
 
     # Definir número de colunas
@@ -117,78 +116,41 @@ def ferramentas_page(page: ft.Page):
     page.add(main_container)
     page.update()
 
-def secpol_conf(page):
-    try:
-        os.system("secpol.msc")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Política de Segurança Local.", "#D9534F")
+def gerar_backup(page):
+    print("Gerar o Backup da base")
 
-def compmgmt_conf(page):
-    try:
-        os.system("compmgmt.msc")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Gerenciamento do Computador.", "#D9534F")
+def open_ssms(page):
+    print("Abrir o SSMS")
 
-def userpasswords_conf(page):
-    try:
-        os.system("control userpasswords2")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Contas de Usuário.", "#D9534F")
+def dispositivos_rede(page):
+    print("Visualizar Dispositivos na Rede")
 
-def gpedit_conf(page):
-    try:
-        os.system("gpedit.msc")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Política de Grupo Local.", "#D9534F")
+def open_s7(page):
+    print("Abrir S7")
 
-def startup_conf(page):
-    try:
-        startup_path = os.path.join(os.getenv("APPDATA"), "Microsoft", "Windows", "Start Menu", "Programs", "Startup")
-        os.startfile(startup_path)
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Inicializar.", "#D9534F")
+def open_webapps(page):
+    print("Abrir WebApps")
 
-def inetcpl_conf(page):
-    try:
-        os.system("inetcpl.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Propriedades de Internet.", "#D9534F")
+def open_mega_compilados(page):
+    print("Abrir Mega - Compilados")
 
-def sysdm_conf(page):
-    try:
-        os.system("sysdm.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Propriedades do Sistema.", "#D9534F")
+def open_mega_manuais(page):
+    print("Abrir Mega - Manuais")
 
-def regedit_conf(page):
-    try:
-        os.system("regedit")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Editor de Registro.", "#D9534F")
+def open_drive(page):
+    print("Abrir Google Drive")
 
-def msconfig_conf(page):
-    try:
-        os.system("msconfig")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Configuração do Sistema.", "#D9534F")
+def windows_activate(page):
+    print("Ativar Windos")
 
-def eventvwr_conf(page):
-    try:
-        os.system("eventvwr")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Visualizador de Eventos.", "#D9534F")
+def reload_win(page):
+    print("Reinicir maquina")
 
-def appwiz_conf(page):
-    try:
-        os.system("appwiz.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Painel de Programas.", "#D9534F")
+def temp_reload_win(page):
+    print("Temporizador reiniciar")
 
-def firewall_conf(page):
-    try:
-        os.system("firewall.cpl")
-    except Exception:
-        show_snackbar(page, "Erro ao abrir Windows Firewall.", "#D9534F")
+def temp_off_win(page):
+    print("Temporizador desligar")
 
 def go_to_technical_page(page):
     from Libs.Technical.technical import technical_page
