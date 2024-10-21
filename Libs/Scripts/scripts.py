@@ -1,10 +1,12 @@
 import os
-import pyperclip, pyodbc
+import re
+import pyperclip
+import pyodbc
 import flet as ft
 from pathlib import Path
 from Libs.Data.sql_server_config import initialize_sql_server
 from Libs.Public.ui import configure_main_window, go_to_login
-from Libs.Public.utils import create_drag_area, create_drawer
+from Libs.Public.utils import create_drag_area, create_drawer, show_snackbar
 
 pastas_historico = []
 
@@ -22,9 +24,9 @@ def handle_change(e, page: ft.Page):
     page_map = {
         0: menu_page,
         1: scripts_page,
-        2: dashboard_page,
-        3: wiki_page,
-        4: technical_page,
+        2: wiki_page,
+        3: technical_page,
+        4: dashboard_page,
         5: movdesk_page,
         6: settings_page
     }
@@ -63,6 +65,14 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
             disabled=(nivel == 0)  # Desativa o botão se estiver no nível inicial
         )
 
+        # Adiciona um botão para ir à pasta raiz
+        raiz_button = ft.IconButton(
+            icon=ft.icons.HOME,
+            on_click=lambda e: listar_pastas_e_arquivos("./Libs/Scripts", page, 0, filtro),
+            tooltip="Ir para a Raiz",
+            disabled=(nivel == 0)  # Desativa o botão se já estiver na raiz
+        )
+
         search_field = ft.TextField(
             hint_text="Pesquisar Pastas e Arquivos...",
             expand=True,
@@ -76,7 +86,7 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
         )
 
         search_container = ft.Row(
-            controls=[voltar_button, search_field],
+            controls=[voltar_button, raiz_button, search_field],
             alignment=ft.MainAxisAlignment.START,
             spacing=10
         )
@@ -162,12 +172,11 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
 
         page.update()
     except PermissionError:
-        mostrar_erro(page, "Sem permissão para acessar esta pasta.")
+        show_snackbar(page, f"Sem permissão para acessar esta pasta.", is_error=True)
     except FileNotFoundError:
-        mostrar_erro(page, "Pasta não encontrada.")
+        show_snackbar(page, f"Pasta não encontrada.", is_error=True)
     except Exception as e:
-        mostrar_erro(page, f"Ocorreu um erro: {str(e)}")
-
+        show_snackbar(page, f"Ocorreu um erro: {str(e)}", is_error=True)
 
 def voltar(page: ft.Page):
     global pastas_historico
@@ -205,92 +214,63 @@ def abrir_arquivo_sql(caminho, page: ft.Page):
         # Função para copiar o conteúdo para a área de transferência
         def copiar_conteudo(e):
             pyperclip.copy(conteudo)
-            print("Conteúdo copiado para a área de transferência.")
+            show_snackbar(page, f"Conteúdo copiado para a área de transferência.", is_error=False)
 
-        # Função para solicitar o valor de uma variável DECLARE
-        def solicitar_valor_variavel(variavel):
-            # Aqui você pode adicionar uma interface para o usuário inserir o valor
-            # Por enquanto, usaremos uma entrada padrão para simplificar
-            valor = input(f"Insira o valor para a variável {variavel}: ")
-            return valor
+        # Função para solicitar os valores para placeholders
+        def solicitar_valores_para_placeholders(script):
+            placeholder_pattern = r"\{(\w+)\}"
+            matches = re.findall(placeholder_pattern, script)
 
-        # Função para substituir o valor da variável DECLARE
-        def substituir_valor_declare(conteudo):
-            linhas = conteudo.splitlines()
-            novo_conteudo = []
-            for linha in linhas:
-                if linha.strip().upper().startswith("DECLARE"):
-                    # Extrai o nome da variável e substitui pelo valor fornecido pelo usuário
-                    partes = linha.split()
-                    if len(partes) > 1:
-                        variavel = partes[1]
-                        valor = solicitar_valor_variavel(variavel)
-                        linha = f"DECLARE {variavel} = {valor};"
-                novo_conteudo.append(linha)
-            return "\n".join(novo_conteudo)
+            # Criar um dicionário para armazenar os campos de texto
+            fields = []
+            for var in matches:
+                text_field = ft.TextField(label=f"Valor para {{{var}}}", width=300)
+                fields.append((var, text_field))
+
+            return fields
+
+        # Criar os campos de texto para cada placeholder encontrado no script SQL
+        placeholder_fields = solicitar_valores_para_placeholders(conteudo)
 
         # Função para executar o comando SQL no servidor SQL
         def executar_sql(e):
             try:
-                # Substitui o valor da variável DECLARE, se necessário
-                conteudo_modificado = substituir_valor_declare(conteudo)
+                # Coletar os valores dos campos de texto
+                valores = {var: field.value for var, field in placeholder_fields}
 
-                # Inicializa a conexão com o SQL Server
+                # Conectar ao SQL Server
                 conn = initialize_sql_server()
-                if conn is not None:
-                    cursor = conn.cursor()
+                cursor = conn.cursor()
 
-                    # Executa o script SQL
-                    print("Executando SQL...")
-                    cursor.execute(conteudo_modificado)
-                    conn.commit()
+                # Substituir os placeholders no script
+                script_completo = conteudo.format(**valores)
 
-                    # Fecha o cursor e a conexão
-                    cursor.close()
-                    conn.close()
-                    print("Script SQL executado com sucesso.")
-                else:
-                    print("Erro ao estabelecer a conexão com o banco de dados.")
-            except pyodbc.Error as db_err:
-                print(f"Erro no banco de dados: {str(db_err)}")
+                # Executar o comando SQL
+                cursor.execute(script_completo)
+                conn.commit()
+
+                show_snackbar(page, f"Comando SQL executado com sucesso.", is_error=False)
             except Exception as ex:
-                print(f"Erro ao executar o SQL: {str(ex)}")
+                show_snackbar(page, f"Erro ao executar o comando: {str(ex)}", is_error=True)
+            finally:
+                cursor.close()
+                conn.close()
 
-        # Exibir o conteúdo do arquivo e botões de ação no diálogo modal
-        dlg_modal = ft.AlertDialog(
-            modal=True,
-            title=ft.Text("Conteúdo do arquivo .sql"),
-            content=ft.Container(
-                content=ft.Text(conteudo, selectable=True),
-                height=300,
-                width=500
-            ),
+        # Exibir um diálogo com o conteúdo do arquivo SQL e opções para copiar e executar
+        page.dialog = ft.AlertDialog(
+            title="Conteúdo do Arquivo SQL",
+            content=ft.Column(controls=[
+                ft.TextArea(value=conteudo, height=300, width=400),
+                *[field for var, field in placeholder_fields]
+            ]),
             actions=[
                 ft.TextButton("Copiar", on_click=copiar_conteudo),
                 ft.TextButton("Executar", on_click=executar_sql),
-                ft.TextButton("Fechar", on_click=lambda e: close_dialog(page, dlg_modal)),
-            ],
-            actions_alignment=ft.MainAxisAlignment.END,
+                ft.TextButton("Fechar", on_click=lambda e: page.dialog.close())
+            ]
         )
-        
-        # Adiciona o diálogo modal à página
-        page.overlay.append(dlg_modal)
-        dlg_modal.open = True
+        page.dialog.open = True
         page.update()
+
     except Exception as e:
-        print(f"Erro ao abrir o arquivo: {str(e)}")
-
-
-def close_dialog(page: ft.Page, dialog: ft.AlertDialog):
-    dialog.open = False
-    page.update()
-
-def mostrar_erro(page, mensagem):
-    page.controls.clear()
-    error_container = ft.Container(
-        content=ft.Text(mensagem, color=ft.colors.RED),
-        padding=ft.padding.all(10),
-        alignment=ft.alignment.center
-    )
-    page.add(error_container)
-    page.update()
+        show_snackbar(page, f"Ocorreu um erro ao abrir o arquivo: {str(e)}", is_error=True)

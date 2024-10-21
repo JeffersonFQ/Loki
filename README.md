@@ -10,5 +10,6 @@ To run the app:
     - GDOWN - Obter Instalador do Drive
     - PYGETWINDOW - Controlar janela nativa do Windows
     - FIREBASE-ADMIN - Controlar Permissões de usuário
+    - PYWEBVIEW - Abrir Visualização da Wiki
 
 flet run [app_directory]

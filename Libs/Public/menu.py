@@ -18,9 +18,9 @@ def handle_change(e, page: ft.Page):
     page_map = {
         0: menu_page,
         1: scripts_page,
-        2: dashboard_page,
-        3: wiki_page,
-        4: technical_page,
+        2: wiki_page,
+        3: technical_page,
+        4: dashboard_page,
         5: movdesk_page,
         6: settings_page
     }

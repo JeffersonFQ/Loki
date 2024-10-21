@@ -1,4 +1,5 @@
 import flet as ft
+import webbrowser  # Para abrir URLs no navegador
 from Libs.Public.ui import configure_main_window, go_to_login
 from Libs.Public.utils import create_drag_area, create_drawer
 
@@ -16,9 +17,9 @@ def handle_change(e, page: ft.Page):
     page_map = {
         0: menu_page,
         1: scripts_page,
-        2: dashboard_page,
-        3: wiki_page,
-        4: technical_page,
+        2: wiki_page,
+        3: technical_page,
+        4: dashboard_page,
         5: movdesk_page,
         6: settings_page
     }
@@ -29,6 +30,9 @@ def handle_change(e, page: ft.Page):
         go_to_login(page)
 
     page.close(e.control)
+
+def abrir_webpage(url):
+    webbrowser.open(url)
 
 def wiki_page(page: ft.Page):
     configure_main_window(page)
@@ -45,25 +49,78 @@ def wiki_page(page: ft.Page):
 
     drag_area = create_drag_area(page, drawer)
 
-    development_message = ft.Text(
-        "Em Desenvolvimento", 
-        size=30,  # Tamanho da fonte
-        weight=ft.FontWeight.BOLD,  # Texto em negrito
-        color=ft.colors.WHITE,  # Cor branca
-        text_align=ft.TextAlign.CENTER,  # Alinhamento central
+    # Adicionando os botões em duas linhas e duas colunas com tamanhos padronizados e ajuste no tamanho da letra
+    botoes_container = ft.Column(
+        expand=True,
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        controls=[
+            ft.Row(
+                alignment=ft.MainAxisAlignment.CENTER,
+                controls=[
+                    ft.ElevatedButton("Tela Principal", 
+                                      on_click=lambda _: abrir_webpage("https://google.com"),
+                                      style=ft.ButtonStyle(
+                                          bgcolor="#CC8105",
+                                          color="#081c15",
+                                          shape=ft.RoundedRectangleBorder(radius=8),
+                                          padding=ft.padding.symmetric(horizontal=20, vertical=10),
+                                          text_style=ft.TextStyle(size=40)  # Alterando o tamanho da letra
+                                      ),
+                                      width=500,
+                                      height=300),
+                    ft.ElevatedButton("Buscar Conteúdo", 
+                                      on_click=lambda _: abrir_webpage("https://google.com"),
+                                      style=ft.ButtonStyle(
+                                          bgcolor="#CC8105",
+                                          color="#081c15",
+                                          shape=ft.RoundedRectangleBorder(radius=8),
+                                          padding=ft.padding.symmetric(horizontal=20, vertical=10),
+                                          text_style=ft.TextStyle(size=40)  # Alterando o tamanho da letra
+                                      ),
+                                      width=500,
+                                      height=300)
+                ]
+            ),
+            ft.Row(
+                alignment=ft.MainAxisAlignment.CENTER,
+                controls=[
+                    ft.ElevatedButton("Novo Conteúdo", 
+                                      on_click=lambda _: abrir_webpage("https://google.com"),
+                                      style=ft.ButtonStyle(
+                                          bgcolor="#CC8105",
+                                          color="#081c15",
+                                          shape=ft.RoundedRectangleBorder(radius=8),
+                                          padding=ft.padding.symmetric(horizontal=20, vertical=10),
+                                          text_style=ft.TextStyle(size=40)  # Alterando o tamanho da letra
+                                      ),
+                                      width=500,
+                                      height=300),
+                    ft.ElevatedButton("Editar Conteúdo", 
+                                      on_click=lambda _: abrir_webpage("https://google.com"),
+                                      style=ft.ButtonStyle(
+                                          bgcolor="#CC8105",
+                                          color="#081c15",
+                                          shape=ft.RoundedRectangleBorder(radius=8),
+                                          padding=ft.padding.symmetric(horizontal=20, vertical=10),
+                                          text_style=ft.TextStyle(size=40)  # Alterando o tamanho da letra
+                                      ),
+                                      width=500,
+                                      height=300)
+                ]
+            )
+        ]
     )
 
     main_container = ft.Container(
         content=ft.Column(
-            controls=[drag_area,
-            development_message],
+            controls=[drag_area, botoes_container],
             expand=True,
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
         ),
         padding=ft.padding.all(0),
         margin=ft.Margin(left=0, right=0, top=0, bottom=0),
-        
     )
 
     page.add(main_container)

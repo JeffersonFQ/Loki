@@ -90,9 +90,9 @@ def handle_change(e, page: ft.Page):
     destinations = [
         menu_page,
         scripts_page,
-        dashboard_page,
         wiki_page,
         technical_page,
+        dashboard_page,
         movdesk_page,
         settings_page
     ]
@@ -130,9 +130,9 @@ def create_drawer(page: ft.Page):
             ),
             ft.NavigationDrawerDestination(label="Clientes", icon=ft.icons.PEOPLE_ALT),
             ft.NavigationDrawerDestination(label="Scripts SQL", icon=ft.icons.ALL_INBOX),
-            ft.NavigationDrawerDestination(label="Dashboard", icon=ft.icons.TRENDING_UP),
             ft.NavigationDrawerDestination(label="WikiSN", icon=ft.icons.BOOK_SHARP),
             ft.NavigationDrawerDestination(label="Menu Técnico", icon=ft.icons.BUILD),
+            ft.NavigationDrawerDestination(label="Dashboard", icon=ft.icons.TRENDING_UP),
             ft.NavigationDrawerDestination(label="API Movdesk", icon=ft.icons.SWAP_VERT_CIRCLE_ROUNDED),
             ft.NavigationDrawerDestination(label="Configurações", icon=ft.icons.SETTINGS_OUTLINED),
             ft.NavigationDrawerDestination(label="Sair", icon=ft.icons.EXIT_TO_APP_OUTLINED),

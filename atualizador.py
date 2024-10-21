@@ -51,7 +51,9 @@ def baixar_atualizacao(url_zip, pasta_destino, page, progress_bar, texto_status,
                 total_arquivos = len(arquivos_extraidos)
 
                 for i, arquivo in enumerate(arquivos_extraidos, 1):
-                    zip_file.extract(arquivo, pasta_destino)
+                    # Verifica se o arquivo atual não é o `atualizador.py`
+                    if "atualizador.py" not in arquivo:
+                        zip_file.extract(arquivo, pasta_destino)
 
                     # Atualiza o progresso para a extração
                     progress_bar.value = (i / total_arquivos)
@@ -78,26 +80,27 @@ def baixar_atualizacao(url_zip, pasta_destino, page, progress_bar, texto_status,
         page.update()
         return None
 
-# Função para substituir o executável antigo e reiniciar o aplicativo
-def substituir_e_reiniciar(novo_executavel, pasta_destino):
-    atual_executavel = sys.executable  # Caminho do executável atual
-    novo_executavel_path = os.path.abspath(novo_executavel)
+# Função para substituir os arquivos antigos pelos novos, exceto o `atualizador.py`
+def substituir_arquivos(pasta_destino):
+    try:
+        # Caminho do diretório atual da aplicação
+        caminho_atual = os.getcwd()
 
-    # Verifica se o arquivo a ser substituído é o executável do Python
-    if os.path.basename(atual_executavel) == "python.exe":
-        print("Erro: Tentativa de substituir o próprio python.exe. Essa ação não é permitida.")
-        return
+        # Copia todos os arquivos da pasta_destino para o diretório da aplicação, exceto o `atualizador.py`
+        for raiz, dirs, arquivos in os.walk(pasta_destino):
+            for arquivo in arquivos:
+                if arquivo != "atualizador.py":  # Ignora o arquivo de atualização
+                    caminho_origem = os.path.join(raiz, arquivo)
+                    caminho_destino = os.path.join(caminho_atual, os.path.relpath(caminho_origem, pasta_destino))
+                    os.makedirs(os.path.dirname(caminho_destino), exist_ok=True)
+                    shutil.move(caminho_origem, caminho_destino)
 
-    # Substitui o executável antigo pelo novo
-    shutil.move(novo_executavel_path, atual_executavel)
+        # Remove a pasta da atualização
+        if os.path.exists(pasta_destino):
+            shutil.rmtree(pasta_destino)
 
-    # Remove a pasta da atualização
-    if os.path.exists(pasta_destino):
-        shutil.rmtree(pasta_destino)
-
-    # Reinicia o software
-    subprocess.Popen([atual_executavel])
-    sys.exit()  # Fecha o processo atual
+    except Exception as e:
+        print(f"Ocorreu um erro ao substituir os arquivos: {str(e)}")
 
 def main(page: ft.Page):
     # Pega a última release do GitHub
@@ -139,9 +142,12 @@ def main(page: ft.Page):
     novo_executavel = baixar_atualizacao(url_atualizacao, pasta_destino, page, progress_bar, texto_status)
     
     if novo_executavel:
+        # Substitui todos os arquivos, exceto o `atualizador.py`
+        substituir_arquivos(pasta_destino)
+        
         # Adiciona um botão para fechar e iniciar o aplicativo
         def iniciar_aplicativo(e):
-            subprocess.Popen([sys.executable, "main.py", url_atualizacao])
+            subprocess.Popen([sys.executable, "Loki.exe", url_atualizacao])
             page.window_close()
 
         btn_iniciar = ft.ElevatedButton(text="Iniciar Aplicativo", on_click=iniciar_aplicativo)

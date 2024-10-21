@@ -1,0 +1,3 @@
+UPDATE EMPRESA 
+SET NUMERO = {Numero}, 
+    RAZAOSOCIAL = {Razao}
