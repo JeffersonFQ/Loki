@@ -1,5 +1,5 @@
 import flet as ft
-import webbrowser  # Para abrir URLs no navegador
+import webbrowser
 from Libs.Public.ui import configure_main_window, go_to_login
 from Libs.Public.utils import create_drag_area, create_drawer
 
@@ -49,7 +49,6 @@ def wiki_page(page: ft.Page):
 
     drag_area = create_drag_area(page, drawer)
 
-    # Adicionando os botões em duas linhas e duas colunas com tamanhos padronizados e ajuste no tamanho da letra
     botoes_container = ft.Column(
         expand=True,
         alignment=ft.MainAxisAlignment.CENTER,
@@ -65,7 +64,7 @@ def wiki_page(page: ft.Page):
                                           color="#081c15",
                                           shape=ft.RoundedRectangleBorder(radius=8),
                                           padding=ft.padding.symmetric(horizontal=20, vertical=10),
-                                          text_style=ft.TextStyle(size=40)  # Alterando o tamanho da letra
+                                          text_style=ft.TextStyle(size=40)
                                       ),
                                       width=500,
                                       height=300),
@@ -76,7 +75,7 @@ def wiki_page(page: ft.Page):
                                           color="#081c15",
                                           shape=ft.RoundedRectangleBorder(radius=8),
                                           padding=ft.padding.symmetric(horizontal=20, vertical=10),
-                                          text_style=ft.TextStyle(size=40)  # Alterando o tamanho da letra
+                                          text_style=ft.TextStyle(size=40)
                                       ),
                                       width=500,
                                       height=300)
@@ -92,7 +91,7 @@ def wiki_page(page: ft.Page):
                                           color="#081c15",
                                           shape=ft.RoundedRectangleBorder(radius=8),
                                           padding=ft.padding.symmetric(horizontal=20, vertical=10),
-                                          text_style=ft.TextStyle(size=40)  # Alterando o tamanho da letra
+                                          text_style=ft.TextStyle(size=40)
                                       ),
                                       width=500,
                                       height=300),
@@ -103,7 +102,7 @@ def wiki_page(page: ft.Page):
                                           color="#081c15",
                                           shape=ft.RoundedRectangleBorder(radius=8),
                                           padding=ft.padding.symmetric(horizontal=20, vertical=10),
-                                          text_style=ft.TextStyle(size=40)  # Alterando o tamanho da letra
+                                          text_style=ft.TextStyle(size=40)
                                       ),
                                       width=500,
                                       height=300)
