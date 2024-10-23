@@ -40,7 +40,7 @@ def technical_page(page: ft.Page):
     page.theme_mode = 'Dark'
 
     drawer = create_drawer(page)
-    drawer.selected_index = 4
+    drawer.selected_index = 3
 
     drawer.on_change = lambda e: handle_change(e, page)
 

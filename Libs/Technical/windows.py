@@ -21,7 +21,7 @@ def windows_page(page: ft.Page):
     page.theme_mode = 'Dark'
 
     drawer = create_drawer(page)
-    drawer.selected_index = 4
+    drawer.selected_index = 3
 
     drag_area = create_drag_area(page, drawer)
 
