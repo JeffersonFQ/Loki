@@ -36,7 +36,6 @@ def ferramentas_page(page: ft.Page):
         (ft.icons.DESCRIPTION, "Desligar agendado", lambda e: temp_off_win(page), '#CC8105'),
     ]
 
-    # Definir número de colunas
     num_columns = 3
     rows = []
     for i in range(0, len(icons_with_labels), num_columns):
@@ -58,11 +57,10 @@ def ferramentas_page(page: ft.Page):
                 spacing=spacing,
                 alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                expand=True  # Permite que a coluna expanda para preencher o espaço
+                expand=True
             )
             columns.append(column)
 
-        # Alinha as colunas na mesma linha
         row = ft.Row(
             spacing=20,
             controls=columns,
@@ -168,12 +166,10 @@ def restart_sql(page):
 
 def dispositivos_rede(page):
     try:
-        # Executa o comando arp -a
         result = subprocess.run(['arp', '-a'], capture_output=True, text=True)
 
         if result.returncode == 0:
             devices = []
-            # Expressão regular para encontrar linhas com IP e MAC
             pattern = re.compile(r'(\d+\.\d+\.\d+\.\d+)\s+([^\s]+)\s+([^\s]+)')
 
             for line in result.stdout.splitlines():
@@ -182,8 +178,7 @@ def dispositivos_rede(page):
                     ip = match.group(1)
                     mac = match.group(2)
                     devices.append(f"IP: {ip}, MAC: {mac}")
-            
-            # Se dispositivos foram encontrados, mostre-os em um AlertDialog
+
             if devices:
                 device_list = "\n".join(devices)
                 dialog_content = f"Dispositivos encontrados:\n{device_list}"
@@ -195,7 +190,6 @@ def dispositivos_rede(page):
     except Exception as e:
         dialog_content = f"Ocorreu um erro: {e}"
 
-    # Cria e abre o dialog com a lista ou mensagem de erro
     dialog = ft.AlertDialog(
         title=ft.Text("Dispositivos na Rede"),
         content=ft.Text(dialog_content),
@@ -261,7 +255,6 @@ def windows_activate(page):
 def reload_win(page):
     def on_reiniciar(e):
         try:
-            # Executa o comando para reiniciar o computador
             subprocess.run('shutdown -r -t 0', shell=True)
             close_dialog(page, dialog)
             show_snackbar(page, "Reiniciando o computador...", is_error=False)
@@ -320,7 +313,7 @@ def temp_off_win(page):
                 page.add(ft.SnackBar(ft.Text("Por favor, insira um número positivo.", size="large"), is_error=True))
                 return
 
-            comando = f'shutdown -s -t {tempo * 60}'  # Comando para desligar após o tempo especificado
+            comando = f'shutdown -s -t {tempo * 60}'
 
             subprocess.run(f'powershell -Command "{comando}"', shell=True)
 

@@ -241,7 +241,7 @@ def ver_ipexterno_conf(page):
         response.raise_for_status()
         ip_externo = response.json()["ip"]
 
-        if ':' not in ip_externo:  # Verifica se é um IPv4
+        if ':' not in ip_externo:
             open_ip_dialog(page, ip_externo, "IP Externo")
         else:
             show_snackbar(page, "Erro: IP externo não é do tipo IPv4.", is_error=True)

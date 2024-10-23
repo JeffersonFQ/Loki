@@ -5,7 +5,6 @@ import sys
 import flet as ft
 from packaging import version
 
-# Verifica se há uma nova versão disponível
 def verificar_nova_versao(usuario, repositorio, versao_atual, token_github):
     url = f"https://api.github.com/repos/{usuario}/{repositorio}/releases/latest"
     headers = {"Authorization": f"token {token_github}"}
@@ -17,15 +16,14 @@ def verificar_nova_versao(usuario, repositorio, versao_atual, token_github):
             return response.json()["zipball_url"], ultima_versao
     return None, versao_atual
 
-# Função que pergunta ao usuário se deseja atualizar
 def perguntar_se_atualizar(page: ft.Page, url_atualizacao, nova_versao):
     def confirmar_atualizacao(e):
         subprocess.Popen([sys.executable, "atualizador.py", url_atualizacao])
         page.window_close()
 
     def cancelar_atualizacao(e):
-        dialog.open = False  # Fecha o diálogo
-        page.update()  # Atualiza a página para refletir a mudança
+        dialog.open = False
+        page.update()
 
     dialog = ft.AlertDialog(
         modal=True,
@@ -42,7 +40,6 @@ def perguntar_se_atualizar(page: ft.Page, url_atualizacao, nova_versao):
     dialog.open = True
     page.update()
 
-# Função principal para iniciar o processo de verificação e atualização
 async def iniciar_atualizacao(page: ft.Page):
     versao_atual = "v1.0.0"
     usuario_github = "JeffersonFQ"

@@ -72,25 +72,22 @@ def login_page(page: ft.Page):
         expand=False
     )
 
-    # Campo de email
     username_input = ft.TextField(
         label="E-mail", 
         width=300, 
         border_color=ft.colors.WHITE,
-        on_submit=lambda e: password_input.focus()  # Pular para o campo de senha ao pressionar Enter
+        on_submit=lambda e: password_input.focus()
     )
 
-    # Campo de senha
     password_input = ft.TextField(
         label="Senha", 
         password=True, 
         width=300, 
         can_reveal_password=True, 
         border_color=ft.colors.WHITE,
-        on_submit=lambda e: login(username_input.value, password_input.value, page)  # Fazer login ao pressionar Enter
+        on_submit=lambda e: login(username_input.value, password_input.value, page)
     )
     
-    # Botão de login
     login_button = ft.ElevatedButton(
         "Fazer Login", 
         on_click=lambda e: login(username_input.value, password_input.value, page),
@@ -98,7 +95,6 @@ def login_page(page: ft.Page):
         color="#081c15"
     )
 
-    # Logo
     logo = ft.Image(
         src="./logo3.svg",
         width=280,
@@ -106,7 +102,6 @@ def login_page(page: ft.Page):
         fit=ft.ImageFit.CONTAIN
     )
 
-    # Container do aplicativo
     app_container = ft.Container(
         content=ft.Column(
             controls=[
@@ -122,7 +117,6 @@ def login_page(page: ft.Page):
         height=650,
     )
 
-    # Adicionar os componentes à página
     page.add(drag_area)
     page.add(app_container)
     page.update()

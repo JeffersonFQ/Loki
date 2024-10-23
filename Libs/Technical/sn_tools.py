@@ -110,38 +110,32 @@ def sn_tools_page(page: ft.Page):
     page.update()
 
 def ver_api_conf(page):
-    # Caminhos para as pastas possíveis do Tomcat
     paths_to_check = [
         r'C:\Program Files\Apache Software Foundation\Tomcat 8.0\webapps',
         r'C:\Program Files (x86)\Apache Software Foundation\Tomcat 8.0\webapps'
     ]
     
     tomcat_webapps_path = None
-    
-    # Verificar se o Tomcat existe em alguma das pastas
+
     for path in paths_to_check:
         if os.path.exists(path):
             tomcat_webapps_path = path
             break
     
     if tomcat_webapps_path is None:
-        # Exibir snackbar informando que o Tomcat não foi encontrado
         page.add(ft.SnackBar(ft.Text("O Tomcat não foi encontrado em 'Program Files' nem em 'Program Files (x86)'.", size="large"), is_error=True))
         page.update()
         return
-    
-    # Criação do conteúdo a ser exibido no diálogo
+
     arquivos_conteudo = []
     for item in os.listdir(tomcat_webapps_path):
         item_path = os.path.join(tomcat_webapps_path, item)
         if os.path.isfile(item_path) and item.endswith('.war'):
             arquivos_conteudo.append(ft.Text(f"API ->  {item}", size=16))
-    
-    # Verificar se há arquivos .war encontrados
+
     if not arquivos_conteudo:
         arquivos_conteudo.append(ft.Text("Nenhum arquivo .war encontrado no diretório.", size=16, color="red"))
-    
-    # Exibir o diálogo com a lista de arquivos .war ou mensagem de ausência
+ 
     dialog = ft.AlertDialog(
         title=ft.Text(f"Conteúdo da pasta '{tomcat_webapps_path}':", size=20, weight="bold"),
         content=ft.Column(arquivos_conteudo, scroll=ft.ScrollMode.AUTO),
@@ -149,8 +143,7 @@ def ver_api_conf(page):
             ft.TextButton("Fechar", on_click=lambda e: close_dialog(page, dialog))
         ],
     )
-    
-    # Adicionar o diálogo à página e exibir
+
     page.overlay.append(dialog)
     dialog.open = True
     page.update()
@@ -163,7 +156,6 @@ def ver_fv_conf(page):
                 show_snackbar(page, "Por favor, insira um nome ou razão social.", is_error=True)
                 return
 
-            # Busca os clientes que correspondem ao nome ou razão social
             clientes_filtrados = []
             clientes_data = db.child("clientes").get()
             for cliente in clientes_data.each():
@@ -174,8 +166,7 @@ def ver_fv_conf(page):
             if not clientes_filtrados:
                 show_snackbar(page, "Nenhum cliente encontrado com esse nome ou razão social.", is_error=True)
                 return
-            
-            # Criação do ListView com os clientes filtrados
+
             client_items = []
             for cliente in clientes_filtrados:
                 item = ft.ListTile(
@@ -203,7 +194,7 @@ def ver_fv_conf(page):
             page.update()
 
         except Exception as ex:
-            print(f"Ocorreu um erro: {str(ex)}")  # Exibindo erro no console do VS
+            print(f"Ocorreu um erro: {str(ex)}")
             show_snackbar(page, f"Ocorreu um erro: {str(ex)}", is_error=True)
 
     def on_client_select(cliente):
@@ -212,15 +203,12 @@ def ver_fv_conf(page):
         url = f"http://{ip}:{porta}/ServicoS7/ServiceTesterResource/versaoWebService"
         
         try:
-            # Fazendo a requisição para a URL e capturando a resposta
             response = requests.get(url)
-            response.raise_for_status()  # Lança um erro se a resposta não for 200
-            versao_api = response.text.strip()  # Captura o valor da versão
+            response.raise_for_status()
+            versao_api = response.text.strip()
 
-            # Fechar o diálogo atual
             close_dialog(page, dialog)
 
-            # Verificar a compatibilidade da versão
             if versao_api in compatibilidade_versoes_fv:
                 versao_erp = compatibilidade_versoes_fv[versao_api]["ERP"]
                 versao_fv = compatibilidade_versoes_fv[versao_api]["FV"]
@@ -228,7 +216,6 @@ def ver_fv_conf(page):
             else:
                 texto_resultado = f"Versão API: {versao_api}\nCompatibilidade desconhecida."
 
-            # Criar um novo diálogo para exibir o resultado
             result_dialog = ft.AlertDialog(
                 title=ft.Text("Resultado da Requisição"),
                 content=ft.Text(texto_resultado, size=16),
@@ -247,7 +234,6 @@ def ver_fv_conf(page):
 
     text_field = ft.TextField(label="Nome ou Razão Social", width=400)
 
-    # Criação e abertura do diálogo
     dialog = ft.AlertDialog(
         title=ft.Text("Buscar Cliente"),
         content=text_field,
@@ -269,7 +255,6 @@ def ver_ge_conf(page):
                 show_snackbar(page, "Por favor, insira um nome ou razão social.", is_error=True)
                 return
 
-            # Busca os clientes que correspondem ao nome ou razão social
             clientes_filtrados = []
             clientes_data = db.child("clientes").get()
             for cliente in clientes_data.each():
@@ -280,8 +265,7 @@ def ver_ge_conf(page):
             if not clientes_filtrados:
                 show_snackbar(page, "Nenhum cliente encontrado com esse nome ou razão social.", is_error=True)
                 return
-            
-            # Criação do ListView com os clientes filtrados
+
             client_items = []
             for cliente in clientes_filtrados:
                 item = ft.ListTile(
@@ -331,7 +315,6 @@ def ver_ge_conf(page):
             else:
                 texto_resultado = f"Versão API: {versao_api}\nCompatibilidade desconhecida."
 
-            # Criar um novo diálogo para exibir o resultado
             result_dialog = ft.AlertDialog(
                 title=ft.Text("Resultado da Requisição"),
                 content=ft.Text(texto_resultado, size=16),
@@ -350,7 +333,6 @@ def ver_ge_conf(page):
 
     text_field = ft.TextField(label="Nome ou Razão Social", width=400)
 
-    # Criação e abertura do diálogo
     dialog = ft.AlertDialog(
         title=ft.Text("Buscar Cliente"),
         content=text_field,
@@ -372,7 +354,6 @@ def ver_checkout_conf(page):
                 show_snackbar(page, "Por favor, insira um nome ou razão social.", is_error=True)
                 return
 
-            # Busca os clientes que correspondem ao nome ou razão social
             clientes_filtrados = []
             clientes_data = db.child("clientes").get()
             for cliente in clientes_data.each():
@@ -383,8 +364,7 @@ def ver_checkout_conf(page):
             if not clientes_filtrados:
                 show_snackbar(page, "Nenhum cliente encontrado com esse nome ou razão social.", is_error=True)
                 return
-            
-            # Criação do ListView com os clientes filtrados
+
             client_items = []
             for cliente in clientes_filtrados:
                 item = ft.ListTile(
@@ -434,7 +414,6 @@ def ver_checkout_conf(page):
             else:
                 texto_resultado = f"Versão API: {versao_api}\nCompatibilidade desconhecida."
 
-            # Criar um novo diálogo para exibir o resultado
             result_dialog = ft.AlertDialog(
                 title=ft.Text("Resultado da Requisição"),
                 content=ft.Text(texto_resultado, size=16),
@@ -453,7 +432,6 @@ def ver_checkout_conf(page):
 
     text_field = ft.TextField(label="Nome ou Razão Social", width=400)
 
-    # Criação e abertura do diálogo
     dialog = ft.AlertDialog(
         title=ft.Text("Buscar Cliente"),
         content=text_field,

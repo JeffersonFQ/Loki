@@ -19,7 +19,6 @@ def show_snackbar(page, message, is_error=False, color='#008000'):
     page.update()
 
 def minimize_window(page: ft.Page):
-    # Obtém a janela atual e a minimiza
     window = gw.getWindowsWithTitle(page.title)[0]
     window.minimize()
 
@@ -28,7 +27,7 @@ def create_drag_area(page: ft.Page, drawer: ft.NavigationDrawer):
         ft.Container(
             content=ft.Row(
                 controls=[
-                    ft.Row(  # Row para o botão de menu à esquerda
+                    ft.Row(
                         controls=[
                             ft.IconButton(
                                 ft.icons.MENU, 
@@ -40,11 +39,11 @@ def create_drag_area(page: ft.Page, drawer: ft.NavigationDrawer):
                         ],
                         alignment=ft.MainAxisAlignment.START,
                     ),
-                    ft.Row(  # Row para os botões de minimizar e fechar à direita
+                    ft.Row(
                         controls=[
                             ft.IconButton(
                                 ft.icons.REMOVE, 
-                                on_click=lambda e: minimize_window(page),  # Botão de minimizar
+                                on_click=lambda e: minimize_window(page),
                                 width=50, 
                                 height=50, 
                                 icon_color='White'
@@ -58,12 +57,12 @@ def create_drag_area(page: ft.Page, drawer: ft.NavigationDrawer):
                             )
                         ],
                         alignment=ft.MainAxisAlignment.END,
-                        spacing=5  # Espaçamento entre os botões
+                        spacing=5
                     )
                 ],
-                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,  # Espaço entre as duas Row
+                alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 vertical_alignment=ft.MainAxisAlignment.CENTER,
-                expand=True  # Permite que a Row ocupe todo o espaço disponível
+                expand=True
             ),
             bgcolor=ft.colors.TRANSPARENT,
             padding=ft.padding.all(0),
@@ -98,10 +97,10 @@ def handle_change(e, page: ft.Page):
     ]
 
     if selected_index < len(destinations):
-        page.clean()  # Limpa a página
-        destinations[selected_index](page)  # Chama a função correspondente
+        page.clean()
+        destinations[selected_index](page)
         show_snackbar(page, f"Navegando para {destinations[selected_index].__name__}")
-    elif selected_index == 7:  # Para o item "Sair"
+    elif selected_index == 7:
         show_snackbar(page, "Saindo...")
         page.window.close()
 
@@ -170,15 +169,12 @@ def create_client_button(client_id, client_name, page):
 
 def connect_rdp_directly(rdp_ip, rdp_user, rdp_pass):
     try:
-        # Armazenar as credenciais temporariamente
         cmdkey_command = f'cmdkey /generic:{rdp_ip} /user:{rdp_user} /pass:{rdp_pass}'
         subprocess.run(cmdkey_command, shell=True)
         
-        # Conectar via RDP usando mstsc
         mstsc_command = f'mstsc /v:{rdp_ip}'
         subprocess.run(mstsc_command, shell=True)
 
-        # Após a conexão, as credenciais podem ser removidas (opcional)
         remove_cmdkey_command = f'cmdkey /delete:{rdp_ip}'
         subprocess.run(remove_cmdkey_command, shell=True)
 
@@ -200,15 +196,13 @@ def on_folder_button_click(client_id, page):
             rdp_user = client_info.get("RDP_USER")
             rdp_pass = client_info.get("RDP_PASS")
 
-            # Tentativa de conexão via RDP
             if rdp_ip and rdp_user and rdp_pass:
                 if connect_rdp_directly(rdp_ip, rdp_user, rdp_pass):
                     print(f"Conectando via RDP ao IP: {rdp_ip} com o usuário: {rdp_user}")
-                    return  # Se a conexão via RDP funcionar, encerra a função
+                    return
                 else:
                     show_snackbar(page, "Erro ao conectar via RDP, tentando AnyDesk...", is_error=True)
 
-            # Tentativa de conexão via AnyDesk
             if anydesk_id and password:
                 command_anydesk = f'echo {password} | "C:\\Program Files (x86)\\AnyDesk\\AnyDesk.exe" {anydesk_id} --with-password'
                 subprocess.run(command_anydesk, shell=True)

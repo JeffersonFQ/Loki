@@ -39,36 +39,32 @@ def install_with_progress(page, install_function, *args):
     dialog.open = True
     page.update()
 
-    progress_running = True  # Variável de controle para o loop de progresso
+    progress_running = True
 
-    # Função que simula um loop contínuo de progresso
     def progress_loop():
         while progress_running:
             pb.value += 0.05
             if pb.value >= 1:
                 pb.value = 0
             page.update()
-            sleep(0.1)  # Aumente ou diminua para controlar a velocidade do loop
+            sleep(0.1)
 
-    # Executa a instalação em uma thread separada
     def run_installation():
-        nonlocal progress_running  # Permite alterar a variável dentro da função
+        nonlocal progress_running
         try:
             progress_thread = Thread(target=progress_loop)
-            progress_thread.start()  # Inicia o loop de progresso
+            progress_thread.start()
 
-            # Executa a função de instalação
             install_function(page, *args)
 
-            # Finaliza o loop de progresso
             progress_running = False
-            progress_thread.join()  # Aguarda o fim do loop de progresso
+            progress_thread.join()
             show_snackbar(page, "Instalação concluída com sucesso!", color=ft.colors.GREEN)
         except Exception as e:
-            progress_running = False  # Finaliza o loop de progresso em caso de erro
+            progress_running = False
             show_snackbar(page, f"Erro na instalação: {str(e)}", color=ft.colors.RED)
         finally:
-            dialog.open = False  # Fecha o diálogo
+            dialog.open = False
             page.update()
 
     Thread(target=run_installation).start()
@@ -92,20 +88,17 @@ def install_java(page, version):
                 os.remove(install_command)
 
 def install_sql_server(page, version):
-    # Definindo URLs e comandos de instalação
     if version == "2017":
         file_url = "https://drive.google.com/uc?id=1t9d8bOe9-n2XsC8MnnhswBG633K7-bp0"
         install_command = "SQL_Server_2017_installer.exe"
-        config_file = "./Libs/Technical/Resources/ConfigurationFile17.ini"  # Arquivo de configuração para SQL Server 2017
+        config_file = "./Libs/Technical/Resources/ConfigurationFile17.ini"
     else:
         file_url = "https://drive.google.com/uc?id=1tJMvqSvrI64pB3b4fYexfKzeAktEbYQ4"
         install_command = "SQL_Server_2019_installer.exe"
-        config_file = "./Libs/Technical/Resources/ConfigurationFile19.ini"  # Arquivo de configuração para SQL Server 2019 (se precisar no futuro)
+        config_file = "./Libs/Technical/Resources/ConfigurationFile19.ini"
 
-    # Fazendo o download do instalador
     if download_installer(page, file_url, install_command):
         try:
-            # Executando o instalador com o arquivo de configuração
             subprocess.run([install_command, "/ConfigurationFile=" + config_file], 
                            check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             
@@ -113,7 +106,6 @@ def install_sql_server(page, version):
         except subprocess.CalledProcessError as e:
             show_snackbar(page, f"Erro na instalação do SQL Server {version}: {e.stderr.decode()}", color=ft.colors.RED)
         finally:
-            # Limpando o instalador
             if os.path.exists(install_command):
                 os.remove(install_command)
 

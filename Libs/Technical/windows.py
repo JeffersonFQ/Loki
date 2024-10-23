@@ -25,10 +25,9 @@ def windows_page(page: ft.Page):
 
     drag_area = create_drag_area(page, drawer)
 
-    # Tamanhos padrão para ícones e texto
-    icon_size = 80  # Tamanho do ícone
-    text_size = 16  # Tamanho do texto
-    spacing = 8     # Espaçamento entre ícone e texto
+    icon_size = 80
+    text_size = 16
+    spacing = 8
 
     icons_with_labels = [
         (ft.icons.DESCRIPTION, "Complexidade de Senha", lambda e: secpol_conf(page), '#CC8105'),
@@ -45,7 +44,6 @@ def windows_page(page: ft.Page):
         (ft.icons.DESCRIPTION, "Windows Firewall", lambda e: firewall_conf(page), '#CC8105'),
     ]
 
-    # Definir número de colunas
     num_columns = 3
     rows = []
     for i in range(0, len(icons_with_labels), num_columns):
@@ -67,11 +65,10 @@ def windows_page(page: ft.Page):
                 spacing=spacing,
                 alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                expand=True  # Permite que a coluna expanda para preencher o espaço
+                expand=True
             )
             columns.append(column)
 
-        # Alinha as colunas na mesma linha
         row = ft.Row(
             spacing=20,
             controls=columns,

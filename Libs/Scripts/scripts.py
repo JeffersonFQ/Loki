@@ -1,7 +1,6 @@
 import os
 import re
 import pyperclip
-import pyodbc
 import flet as ft
 from pathlib import Path
 from Libs.Data.sql_server_config import initialize_sql_server
@@ -50,7 +49,6 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
 
         page.controls.clear()
 
-        # Manter a drag bar ao atualizar a página
         if len(page.controls) == 0:
             drawer = create_drawer(page)
             drawer.selected_index = 1
@@ -62,15 +60,14 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
             icon=ft.icons.ARROW_BACK,
             on_click=lambda e: voltar(page),
             tooltip="Voltar",
-            disabled=(nivel == 0)  # Desativa o botão se estiver no nível inicial
+            disabled=(nivel == 0)
         )
 
-        # Adiciona um botão para ir à pasta raiz
         raiz_button = ft.IconButton(
             icon=ft.icons.HOME,
             on_click=lambda e: listar_pastas_e_arquivos("./Libs/Scripts", page, 0, filtro),
             tooltip="Ir para a Raiz",
-            disabled=(nivel == 0)  # Desativa o botão se já estiver na raiz
+            disabled=(nivel == 0)
         )
 
         search_field = ft.TextField(
@@ -81,7 +78,7 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
             border_color=ft.colors.WHITE,
             text_size=20,
             autofocus=True,
-            value=filtro,  # Preenche o valor atual da pesquisa
+            value=filtro,
             on_change=lambda e: listar_pastas_e_arquivos(caminho, page, nivel, e.control.value)
         )
 
@@ -95,7 +92,6 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
 
         arquivos_ignorados = ['desktop.ini', '__pycache__']
 
-        # Função para buscar no nível atual ou recursivamente se houver um filtro
         def buscar_arquivos_e_pastas(pasta, filtro, recursivo=False):
             resultados = []
             with os.scandir(pasta) as it:
@@ -106,16 +102,13 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
                         elif entry.is_file() and entry.name.endswith('.sql'):
                             resultados.append((entry.path, 'arquivo'))
 
-                    # Se o filtro estiver ativo, buscar recursivamente
                     if recursivo and entry.is_dir():
                         resultados.extend(buscar_arquivos_e_pastas(entry.path, filtro, recursivo=True))
             return resultados
 
-        # Se houver filtro, buscar recursivamente, senão, buscar apenas no nível atual
-        recursivo = bool(filtro)  # Buscar recursivamente apenas se houver filtro
+        recursivo = bool(filtro)
         resultados = buscar_arquivos_e_pastas(caminho, filtro, recursivo)
 
-        # Exibir os resultados encontrados
         for caminho_completo, tipo in resultados:
             item = os.path.basename(caminho_completo)
             item_tooltip = item
@@ -181,9 +174,9 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
 def voltar(page: ft.Page):
     global pastas_historico
     if len(pastas_historico) > 1:
-        pastas_historico.pop()  # Remove a pasta atual do histórico
-        caminho_anterior = pastas_historico[-1]  # Obtém a pasta anterior
-        listar_pastas_e_arquivos(caminho_anterior, page, len(pastas_historico) - 1)  # Retorna ao nível anterior
+        pastas_historico.pop()
+        caminho_anterior = pastas_historico[-1]
+        listar_pastas_e_arquivos(caminho_anterior, page, len(pastas_historico) - 1)
 
 def scripts_page(page: ft.Page):
     configure_main_window(page)
@@ -195,33 +188,27 @@ def scripts_page(page: ft.Page):
     page.theme_mode = 'Dark'
     page.window.border_color = ft.colors.TRANSPARENT
 
-    # Criação do drawer e área de drag
     drawer = create_drawer(page)
     drawer.selected_index = 1
     drawer.on_change = lambda e: handle_change(e, page)
     drag_area = create_drag_area(page, drawer)
 
-    # Adiciona a lista de pastas para navegação
     page.add(drag_area)
     listar_pastas_e_arquivos("./Libs/Scripts", page)
 
 def abrir_arquivo_sql(caminho, page: ft.Page):
     try:
-        # Abre o arquivo .sql e lê seu conteúdo
         with open(caminho, 'r', encoding='utf-8') as file:
             conteudo = file.read()
 
-        # Função para copiar o conteúdo para a área de transferência
         def copiar_conteudo(e):
             pyperclip.copy(conteudo)
             show_snackbar(page, f"Conteúdo copiado para a área de transferência.", is_error=False)
 
-        # Função para solicitar os valores para placeholders
         def solicitar_valores_para_placeholders(script):
             placeholder_pattern = r"\{(\w+)\}"
             matches = re.findall(placeholder_pattern, script)
 
-            # Criar um dicionário para armazenar os campos de texto
             fields = []
             for var in matches:
                 text_field = ft.TextField(label=f"Valor para {{{var}}}", width=300)
@@ -229,23 +216,17 @@ def abrir_arquivo_sql(caminho, page: ft.Page):
 
             return fields
 
-        # Criar os campos de texto para cada placeholder encontrado no script SQL
         placeholder_fields = solicitar_valores_para_placeholders(conteudo)
 
-        # Função para executar o comando SQL no servidor SQL
         def executar_sql(e):
             try:
-                # Coletar os valores dos campos de texto
                 valores = {var: field.value for var, field in placeholder_fields}
 
-                # Conectar ao SQL Server
                 conn = initialize_sql_server()
                 cursor = conn.cursor()
 
-                # Substituir os placeholders no script
                 script_completo = conteudo.format(**valores)
 
-                # Executar o comando SQL
                 cursor.execute(script_completo)
                 conn.commit()
 
@@ -256,7 +237,6 @@ def abrir_arquivo_sql(caminho, page: ft.Page):
                 cursor.close()
                 conn.close()
 
-        # Exibir um diálogo com o conteúdo do arquivo SQL e opções para copiar e executar
         page.dialog = ft.AlertDialog(
             title="Conteúdo do Arquivo SQL",
             content=ft.Column(controls=[

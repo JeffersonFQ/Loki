@@ -1,5 +1,3 @@
-# compatibilidades.py
-
 compatibilidade_versoes_fv = {
     "1.119.0": {
         "ERP": "A partir da versão 10.24B",

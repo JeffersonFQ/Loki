@@ -1,5 +1,4 @@
 import flet as ft
-import os
 from Libs.Public.ui import configure_main_window
 from Libs.Public.utils import create_drag_area, create_drawer
 
@@ -44,7 +43,6 @@ def analytics_page(page: ft.Page):
         (ft.icons.DESCRIPTION, "Verificar Produtos B2B", lambda e: b2b_produto_ver(page), '#CC8105'),
     ]
 
-    # Definir número de colunas
     num_columns = 3
     rows = []
     for i in range(0, len(icons_with_labels), num_columns):
@@ -66,11 +64,10 @@ def analytics_page(page: ft.Page):
                 spacing=spacing,
                 alignment=ft.MainAxisAlignment.CENTER,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                expand=True  # Permite que a coluna expanda para preencher o espaço
+                expand=True
             )
             columns.append(column)
 
-        # Alinha as colunas na mesma linha
         row = ft.Row(
             spacing=20,
             controls=columns,

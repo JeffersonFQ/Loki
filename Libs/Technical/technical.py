@@ -46,7 +46,6 @@ def technical_page(page: ft.Page):
 
     drag_area = create_drag_area(page, drawer)
 
-    # Funções para os ícones
     def on_windows_clicked(e):
         from Libs.Technical.windows import windows_page
         page.clean()
@@ -83,8 +82,7 @@ def technical_page(page: ft.Page):
         install_page(page)
         page.update()
 
-    # Lista de ícones e rótulos com cores
-    icon_size = 200  # Tamanho do ícone
+    icon_size = 200
     icons_with_labels = [
         (ft.icons.WINDOW, "Windows Tools", on_windows_clicked, ft.colors.RED),
         (ft.icons.BUILD_CIRCLE_OUTLINED, "Ferramentas", on_tools_clicked, ft.colors.GREEN),
@@ -94,7 +92,6 @@ def technical_page(page: ft.Page):
         (ft.icons.INSTALL_DESKTOP, "Instalações", on_install_clicked, ft.colors.YELLOW),
     ]
 
-    # Criar linhas de ícones com textos
     rows = []
     for i in range(0, len(icons_with_labels), 3):
         columns = []
@@ -125,7 +122,6 @@ def technical_page(page: ft.Page):
         )
         rows.append(row)
 
-    # Container para os ícones
     icons_container = ft.Column(
         spacing=80,
         controls=rows,
