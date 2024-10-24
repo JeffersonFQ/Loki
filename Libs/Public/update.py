@@ -1,7 +1,4 @@
-import asyncio
-import requests
-import subprocess
-import sys
+import asyncio, requests, subprocess, sys
 import flet as ft
 from packaging import version
 

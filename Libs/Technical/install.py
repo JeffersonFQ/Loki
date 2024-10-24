@@ -1,7 +1,5 @@
-import os
-import subprocess
+import os, subprocess, gdown
 from time import sleep
-import gdown
 import flet as ft
 from threading import Thread
 from Libs.Public.ui import configure_main_window

@@ -1,8 +1,5 @@
-import os
-import re
-import pyperclip
+import os, re, pyperclip
 import flet as ft
-from pathlib import Path
 from Libs.Data.sql_server_config import initialize_sql_server
 from Libs.Public.ui import configure_main_window, go_to_login
 from Libs.Public.utils import create_drag_area, create_drawer, show_snackbar
@@ -226,31 +223,41 @@ def abrir_arquivo_sql(caminho, page: ft.Page):
                 cursor = conn.cursor()
 
                 script_completo = conteudo.format(**valores)
+                print(f"SQL Executável: {script_completo}")
 
                 cursor.execute(script_completo)
                 conn.commit()
 
                 show_snackbar(page, f"Comando SQL executado com sucesso.", is_error=False)
             except Exception as ex:
+                print(f"Erro ao executar o comando: {str(ex)}")
                 show_snackbar(page, f"Erro ao executar o comando: {str(ex)}", is_error=True)
             finally:
                 cursor.close()
                 conn.close()
 
-        page.dialog = ft.AlertDialog(
-            title="Conteúdo do Arquivo SQL",
+        dialog = ft.AlertDialog(
+            title=ft.Text("Conteúdo do Arquivo SQL"),
             content=ft.Column(controls=[
-                ft.TextArea(value=conteudo, height=300, width=400),
+                ft.TextField(value=conteudo, multiline=True, height=300, width=600),
                 *[field for var, field in placeholder_fields]
             ]),
             actions=[
                 ft.TextButton("Copiar", on_click=copiar_conteudo),
                 ft.TextButton("Executar", on_click=executar_sql),
-                ft.TextButton("Fechar", on_click=lambda e: page.dialog.close())
+                ft.TextButton("Fechar", on_click=lambda e: close_dialog(page, dialog))
             ]
         )
-        page.dialog.open = True
+
+        page.overlay.append(dialog)
+
+        dialog.open = True
         page.update()
 
     except Exception as e:
         show_snackbar(page, f"Ocorreu um erro ao abrir o arquivo: {str(e)}", is_error=True)
+
+
+def close_dialog(page, dialog):
+    dialog.open = False
+    page.update()

@@ -1,3 +1,3 @@
 UPDATE EMPRESA 
 SET NUMERO = {Numero}, 
-    RAZAOSOCIAL = {Razao}
+    RAZAOSOCIAL = '{Razao}'
