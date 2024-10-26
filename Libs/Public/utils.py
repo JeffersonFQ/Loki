@@ -78,7 +78,7 @@ def create_drag_area(page: ft.Page, drawer: ft.NavigationDrawer):
 def handle_change(e, page: ft.Page):
     from Libs.Public.menu import menu_page
     from Libs.Scripts.scripts import scripts_page
-    from Libs.Dashboard.dashboard import dashboard_page
+    from Libs.Migracao.migracao import migracao_page
     from Libs.Wiki.wiki import wiki_page
     from Libs.Technical.technical import technical_page
     from Libs.Movdesk.movdesk import movdesk_page
@@ -91,7 +91,7 @@ def handle_change(e, page: ft.Page):
         scripts_page,
         wiki_page,
         technical_page,
-        dashboard_page,
+        migracao_page,
         movdesk_page,
         settings_page
     ]
@@ -129,12 +129,12 @@ def create_drawer(page: ft.Page):
             ),
             ft.NavigationDrawerDestination(label="Clientes", icon=ft.icons.PEOPLE_ALT),
             ft.NavigationDrawerDestination(label="Scripts SQL", icon=ft.icons.ALL_INBOX),
-            ft.NavigationDrawerDestination(label="WikiSN", icon=ft.icons.BOOK_SHARP),
-            ft.NavigationDrawerDestination(label="Menu Técnico", icon=ft.icons.BUILD),
-            ft.NavigationDrawerDestination(label="Dashboard", icon=ft.icons.TRENDING_UP),
-            ft.NavigationDrawerDestination(label="API Movdesk", icon=ft.icons.SWAP_VERT_CIRCLE_ROUNDED),
+            ft.NavigationDrawerDestination(label="WikiSN", icon=ft.icons.PSYCHOLOGY_ALT),
+            ft.NavigationDrawerDestination(label="Menu Técnico", icon=ft.icons.HANDYMAN),
+            ft.NavigationDrawerDestination(label="Migração", icon=ft.icons.SYSTEM_UPDATE_ALT),
+            ft.NavigationDrawerDestination(label="API Movdesk", icon=ft.icons.PUBLISHED_WITH_CHANGES),
             ft.NavigationDrawerDestination(label="Configurações", icon=ft.icons.SETTINGS_OUTLINED),
-            ft.NavigationDrawerDestination(label="Sair", icon=ft.icons.EXIT_TO_APP_OUTLINED),
+            ft.NavigationDrawerDestination(label="Sair", icon=ft.icons.LOGOUT),
         ],
     )
     return drawer

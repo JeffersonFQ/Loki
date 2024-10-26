@@ -8,7 +8,7 @@ pastas_historico = []
 
 def handle_change(e, page: ft.Page):
     from Libs.Public.menu import menu_page
-    from Libs.Dashboard.dashboard import dashboard_page
+    from Libs.Migracao.migracao import migracao_page
     from Libs.Wiki.wiki import wiki_page
     from Libs.Technical.technical import technical_page
     from Libs.Movdesk.movdesk import movdesk_page
@@ -22,7 +22,7 @@ def handle_change(e, page: ft.Page):
         1: scripts_page,
         2: wiki_page,
         3: technical_page,
-        4: dashboard_page,
+        4: migracao_page,
         5: movdesk_page,
         6: settings_page
     }
