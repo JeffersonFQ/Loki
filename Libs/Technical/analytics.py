@@ -447,7 +447,7 @@ def all_config_ver(page):
 
     def verificar_sql_server_ativo():
         return "sim" if any(proc.info['name'] and 'sqlservr' in proc.info['name'].lower() 
-                             for proc in psutil.process_iter(['pid', 'name'])) else "não"
+                            for proc in psutil.process_iter(['pid', 'name'])) else "não"
 
     sql_server_ativo = verificar_sql_server_ativo()
 

@@ -114,7 +114,7 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
                 folder_button = ft.Container(
                     content=ft.Column(
                         controls=[ft.Icon(ft.icons.FOLDER, size=100, color=ft.colors.YELLOW),
-                                  ft.Text(item, size=16, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER, tooltip=item_tooltip)],
+                                    ft.Text(item, size=16, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER, tooltip=item_tooltip)],
                         alignment=ft.MainAxisAlignment.CENTER,
                         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                         spacing=0
@@ -131,7 +131,7 @@ def listar_pastas_e_arquivos(caminho, page, nivel=0, filtro=""):
                 file_button = ft.Container(
                     content=ft.Column(
                         controls=[ft.Icon(ft.icons.DESCRIPTION, size=100, color=ft.colors.GREEN),
-                                  ft.Text(item, size=12, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER, tooltip=item_tooltip)],
+                                    ft.Text(item, size=12, color=ft.colors.WHITE, text_align=ft.TextAlign.CENTER, tooltip=item_tooltip)],
                         alignment=ft.MainAxisAlignment.CENTER,
                         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                         spacing=5

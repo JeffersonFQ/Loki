@@ -135,7 +135,7 @@ def ver_api_conf(page):
 
     if not arquivos_conteudo:
         arquivos_conteudo.append(ft.Text("Nenhum arquivo .war encontrado no diretório.", size=16, color="red"))
- 
+
     dialog = ft.AlertDialog(
         title=ft.Text(f"Conteúdo da pasta '{tomcat_webapps_path}':", size=20, weight="bold"),
         content=ft.Column(arquivos_conteudo, scroll=ft.ScrollMode.AUTO),
@@ -160,7 +160,7 @@ def ver_fv_conf(page):
             clientes_data = db.child("clientes").get()
             for cliente in clientes_data.each():
                 if (cliente.val().get("NOME") and nome_ou_razao.lower() in cliente.val().get("NOME").lower()) or \
-                   (cliente.val().get("RAZAO") and nome_ou_razao.lower() in cliente.val().get("RAZAO").lower()):
+                    (cliente.val().get("RAZAO") and nome_ou_razao.lower() in cliente.val().get("RAZAO").lower()):
                     clientes_filtrados.append(cliente)
 
             if not clientes_filtrados:
@@ -259,7 +259,7 @@ def ver_ge_conf(page):
             clientes_data = db.child("clientes").get()
             for cliente in clientes_data.each():
                 if (cliente.val().get("NOME") and nome_ou_razao.lower() in cliente.val().get("NOME").lower()) or \
-                   (cliente.val().get("RAZAO") and nome_ou_razao.lower() in cliente.val().get("RAZAO").lower()):
+                    (cliente.val().get("RAZAO") and nome_ou_razao.lower() in cliente.val().get("RAZAO").lower()):
                     clientes_filtrados.append(cliente)
 
             if not clientes_filtrados:
@@ -358,7 +358,7 @@ def ver_checkout_conf(page):
             clientes_data = db.child("clientes").get()
             for cliente in clientes_data.each():
                 if (cliente.val().get("NOME") and nome_ou_razao.lower() in cliente.val().get("NOME").lower()) or \
-                   (cliente.val().get("RAZAO") and nome_ou_razao.lower() in cliente.val().get("RAZAO").lower()):
+                    (cliente.val().get("RAZAO") and nome_ou_razao.lower() in cliente.val().get("RAZAO").lower()):
                     clientes_filtrados.append(cliente)
 
             if not clientes_filtrados:

@@ -98,7 +98,7 @@ def install_sql_server(page, version):
     if download_installer(page, file_url, install_command):
         try:
             subprocess.run([install_command, "/ConfigurationFile=" + config_file], 
-                           check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             
             show_snackbar(page, f"SQL Server {version} foi instalado com sucesso!", color=ft.colors.GREEN)
         except subprocess.CalledProcessError as e:
